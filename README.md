@@ -1,15 +1,30 @@
 # Cloudflare Turnstile for Zen Cart
 
-Adds a Cloudflare Turnstile check to every create-account form (Create Account page, the Login
-page's inline form, One-Page Checkout's registration form) and refuses the account when the
-check is missing or fails. No template file is changed.
+Stops bot signups and Contact Us spam with Cloudflare's free Turnstile check. No picture puzzles, and nothing goes to Google.
 
-- Install from Admin > Modules > Plugin Manager, then enter the Site Key and Secret Key under
-  Configuration > Cloudflare Turnstile. It does nothing until both keys are set.
-- Server-side check: `NOTIFY_CREATE_ACCOUNT_VALIDATION_CHECK` (core create_account and OPC).
-- Widget: injected by a small script printed at `NOTIFY_HTML_HEAD_END` on the create_account
-  and login pages; compact size below 300px of column width.
-- If Cloudflare is unreachable or rejects the Secret Key, the account is allowed and a
-  myDEBUG warning is written, so an outage or a typo never blocks real customers.
+The check goes on every create-account form (the Create Account page, the Login page's new-customer form, and One Page Checkout's registration form) and on Contact Us. Every submission is verified on the server, and one whose check is missing or fails is refused. No template file is changed.
 
-Tested 2026-10-13 on test.haredo.com (ZC 2.2.2, ZCA Bootstrap) with Cloudflare's test keys.
+An encapsulated plugin (`zc_plugins/Turnstile/`) for **Zen Cart 2.0 through 3.0.0** on **PHP 8.0 through 8.5**.
+
+## Quick start
+
+1. Upload `zc_plugins/Turnstile` into the store's `zc_plugins` folder.
+2. **Modules > Plugin Manager**: install Cloudflare Turnstile.
+3. In a free Cloudflare account, **Application security > Turnstile > Add widget manually**: add your store's hostnames, leave the mode on Managed, and create it.
+4. Paste the Site Key and Secret Key into **Configuration > Cloudflare Turnstile**.
+
+The full guide, with every Cloudflare screen, is `readme.html` (also inside the plugin and linked from Plugin Manager).
+
+**Rather not do it yourself?** We'll set it up for you for a flat fee. Ask at [myzencartzone.com](https://myzencartzone.com/).
+
+## Documents
+
+- [docs/INSTALL.md](docs/INSTALL.md): installing, upgrading, uninstalling
+- [docs/CONFIGURATION.md](docs/CONFIGURATION.md): the Cloudflare setup and every setting
+- [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md): Zen Cart and PHP versions, templates, One Page Checkout
+- [docs/CUSTOMIZING.md](docs/CUSTOMIZING.md): notifiers for add-ons, wording, styling
+- [CHANGELOG.md](CHANGELOG.md)
+
+## License
+
+GNU General Public License, version 2. See [LICENSE](LICENSE). Cloudflare and Turnstile are trademarks of Cloudflare, Inc.; this plugin is independent and isn't made or endorsed by Cloudflare.

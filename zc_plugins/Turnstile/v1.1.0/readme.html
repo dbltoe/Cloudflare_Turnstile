@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cloudflare Turnstile v1.1.0 - Read Me</title>
+<style>
+  :root { --ink: #1f2933; --muted: #52606d; --line: #d9e2ec; --accent: #0b4f8a; --soft: #f0f4f8; --warn: #fff4e5; --warnline: #f0b429; --good: #e8f5e9; --goodline: #2e7d32; }
+  body { margin: 0; background: #fff; color: var(--ink); font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 2rem; margin: 0 0 4px; line-height: 1.3; }
+  .tagline { margin: 0 0 24px; color: var(--muted); font-size: 1.1rem; line-height: 1.5; }
+  h2 { font-size: 1.35rem; margin: 36px 0 8px; padding-top: 12px; border-top: 1px solid var(--line); line-height: 1.5; }
+  h3 { font-size: 1.1rem; margin: 22px 0 6px; line-height: 1.5; }
+  code { background: var(--soft); padding: 1px 5px; border-radius: 4px; font-size: 0.92em; }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0 16px; font-size: 0.95rem; }
+  th, td { border: 1px solid var(--line); padding: 7px 9px; text-align: left; vertical-align: top; }
+  th { background: var(--soft); }
+  .note { background: var(--warn); border-left: 4px solid var(--warnline); padding: 10px 14px; margin: 12px 0; }
+  .offer { background: var(--good); border-left: 4px solid var(--goodline); padding: 12px 16px; margin: 16px 0; }
+  .toc { background: var(--soft); padding: 12px 18px; border-radius: 6px; }
+  .toc ol { margin: 0; padding-left: 20px; }
+  a { color: var(--accent); }
+  ol li, ul li { margin: 4px 0; }
+</style>
+</head>
+<body>
+<main>
+<h1>Cloudflare Turnstile v1.1.0</h1>
+<p class="tagline">Stop bot signups and Contact Us spam with Cloudflare's free check. No picture puzzles, and nothing goes to Google.</p>
+
+<p>Bots that create fake accounts fill your customer list, your newsletter list and your mail log with junk, and every one of them gets a welcome email from your store. Cloudflare Turnstile tells people and bots apart without making shoppers click on traffic lights. Most real visitors pass without doing anything at all.</p>
+
+<p>This plugin adds Turnstile to the forms bots go for, checks every submission on your server, and refuses the ones that fail. It's an encapsulated plugin: everything lives in <code>zc_plugins/Turnstile/</code>, and no template file is changed.</p>
+
+<div class="offer"><strong>Rather not do the Cloudflare part yourself?</strong> We'll do the whole setup for you for a flat fee: the Cloudflare widget, the plugin, the keys, and a test signup on your live store to prove it works. You never have to share your Cloudflare password; you just invite us to your Cloudflare account, and you can remove us when we're done. Ask us at <a href="https://myzencartzone.com/" target="_blank" rel="noopener noreferrer">myzencartzone.com</a>.</div>
+
+<div class="toc"><strong>Contents</strong>
+<ol>
+  <li><a href="#what">What it protects</a></li>
+  <li><a href="#requirements">Requirements</a></li>
+  <li><a href="#install">Installing the plugin</a></li>
+  <li><a href="#cloudflare">Setting up Cloudflare, step by step</a></li>
+  <li><a href="#settings">Settings</a></li>
+  <li><a href="#testing">Testing it</a></li>
+  <li><a href="#troubleshooting">Troubleshooting</a></li>
+  <li><a href="#privacy">Privacy and safety</a></li>
+  <li><a href="#upgrade">Upgrading and uninstalling</a></li>
+  <li><a href="#pro">Turnstile Pro</a></li>
+  <li><a href="#support">Support</a></li>
+</ol></div>
+
+<h2 id="what">1. What it protects</h2>
+<table>
+  <tr><th>Form</th><th>Where it appears</th></tr>
+  <tr><td>Create Account</td><td>The Create Account page, the new-customer form on the Login page, and One Page Checkout's registration form. A failed check means no account is created and no welcome email goes out.</td></tr>
+  <tr><td>Contact Us</td><td>The Contact Us page. A failed check means the message isn't sent.</td></tr>
+</table>
+<p>Each form can be switched on or off on its own. The check is placed just above the form's Submit or Send button.</p>
+
+<h2 id="requirements">2. Requirements</h2>
+<table>
+  <tr><th>Item</th><th>Needed</th></tr>
+  <tr><td>Zen Cart</td><td>2.0.0 or later (2.0, 2.1, 2.2, 2.3, 3.0.0). Works with One Page Checkout.</td></tr>
+  <tr><td>PHP</td><td>8.0 or later, as Zen Cart 2.0 and later require (tested through PHP 8.5). curl is used when available; without it the plugin falls back to PHP's own HTTP functions.</td></tr>
+  <tr><td>Cloudflare</td><td>A free Cloudflare account. Your site does <strong>not</strong> need to run through Cloudflare; Turnstile works on any website.</td></tr>
+  <tr><td>Template</td><td>Your template's <code>common/html_header.php</code> must fire <code>NOTIFY_HTML_HEAD_END</code>. Every Zen Cart template and ZCA Bootstrap do. The installer warns you if yours doesn't (see <a href="#troubleshooting">Troubleshooting</a>).</td></tr>
+</table>
+
+<h2 id="install">3. Installing the plugin</h2>
+<ol>
+  <li>Upload the <code>zc_plugins/Turnstile</code> folder from the package into your store's <code>zc_plugins</code> folder.</li>
+  <li>In the admin, go to <strong>Modules &gt; Plugin Manager</strong>, select <strong>Cloudflare Turnstile</strong> and click <strong>Install</strong>.</li>
+  <li>A new settings page appears at <strong>Configuration &gt; Cloudflare Turnstile</strong>. The plugin does nothing until you enter the two keys from Cloudflare, so it's safe to install before you have them.</li>
+</ol>
+
+<h2 id="cloudflare">4. Setting up Cloudflare, step by step</h2>
+<p>This takes about five minutes. Cloudflare changes its dashboard from time to time, so a button may move, but the steps stay the same.</p>
+<h3>Get a Cloudflare account</h3>
+<ol>
+  <li>Go to <code>dash.cloudflare.com</code> and sign up. The free plan is all Turnstile needs.</li>
+  <li>You don't need to add your domain or change your DNS. Skip any prompt that asks you to.</li>
+</ol>
+<h3>Create the widget</h3>
+<ol>
+  <li>In the left menu, open <strong>Application security</strong> and choose <strong>Turnstile</strong>.</li>
+  <li>Click <strong>Add widget manually</strong>. (Ignore "Set up with Spin"; this plugin does that wiring for you.)</li>
+  <li><strong>Widget name:</strong> anything that tells you what it's for, like <code>My Store forms</code>.</li>
+  <li><strong>Hostnames:</strong> type your store's domain, for example <code>example.com</code>, and choose <strong>Add "example.com" as a custom hostname</strong>. Add <code>www.example.com</code> the same way, and any test copy of your store (like <code>test.example.com</code>). A widget can have up to 10 hostnames.</li>
+  <li><strong>Widget Mode:</strong> leave it on <strong>Managed</strong> (Cloudflare's recommendation). Most visitors pass invisibly; only suspicious ones are asked to tick a box.</li>
+  <li><strong>Skip future security rule challenges for verified visitors</strong> (pre-clearance): leave it <strong>off</strong>. It only applies to sites whose traffic runs through Cloudflare.</li>
+  <li>Click <strong>Create</strong>.</li>
+</ol>
+<h3>Copy the keys into your store</h3>
+<ol>
+  <li>Cloudflare now shows a <strong>Site key</strong> and a <strong>Secret key</strong>. Clicking either one copies it.</li>
+  <li>In your Zen Cart admin, open <strong>Configuration &gt; Cloudflare Turnstile</strong>.</li>
+  <li>Paste the Site key into <strong>Site Key</strong> and the Secret key into <strong>Secret Key</strong>, saving each one.</li>
+</ol>
+<p>That's it: the check is live as soon as both keys are saved. You can see the keys again later under Application security &gt; Turnstile &gt; your widget.</p>
+<div class="note"><strong>Keep the Secret key secret.</strong> It's only ever sent from your server to Cloudflare. The Site key is public by design; it appears in your page's code.</div>
+<h3>If someone else manages your Cloudflare account</h3>
+<p>Ask the account owner to invite you under <strong>Manage account &gt; Members</strong>. After you accept the invitation email, the account appears in your Cloudflare account list, and its Turnstile page works the same way. This is also how you let us set it up for you without sharing a password.</p>
+
+<h2 id="settings">5. Settings</h2>
+<p>All under <strong>Configuration &gt; Cloudflare Turnstile</strong>.</p>
+<table>
+  <tr><th>Setting</th><th>What it does</th></tr>
+  <tr><td>Enable Cloudflare Turnstile?</td><td>The master switch. <strong>false</strong> turns every check off without uninstalling.</td></tr>
+  <tr><td>Site Key</td><td>From your Cloudflare widget. Public.</td></tr>
+  <tr><td>Secret Key</td><td>From the same widget. Shown masked in the admin.</td></tr>
+  <tr><td>Protect Create Account</td><td>Check every form that creates an account.</td></tr>
+  <tr><td>Protect Contact Us</td><td>Check the Contact Us form before its email is sent.</td></tr>
+</table>
+
+<h2 id="testing">6. Testing it</h2>
+<ol>
+  <li>Open your store's Create Account page in a private (incognito) window. You should see the Cloudflare check just above the Submit button. Usually it shows "Success!" on its own within a second or two.</li>
+  <li>Create a throwaway account. If it's created, everything is working end to end. Delete it under Customers afterward.</li>
+  <li>Do the same on Contact Us and send yourself a test message.</li>
+</ol>
+<p>Want to test without touching your live store? On a test copy, use Cloudflare's published test keys: Site key <code>1x00000000000000000000AA</code> (always passes) with Secret key <code>1x0000000000000000000000000000000AA</code>. Switch to your real keys for the live store.</p>
+
+<h2 id="troubleshooting">7. Troubleshooting</h2>
+<table>
+  <tr><th>What you see</th><th>What to check</th></tr>
+  <tr><td>No check appears on the form</td><td>Both keys must be saved and the master switch on. Then check that your template fires <code>NOTIFY_HTML_HEAD_END</code>: the installer shows a warning in the admin if it doesn't. Until the template is fixed, leave Turnstile switched off, or nobody will be able to submit the form.</td></tr>
+  <tr><td>The check says the domain is invalid</td><td>The store's hostname isn't on the widget. Add it (with and without <code>www.</code>) under Application security &gt; Turnstile &gt; your widget.</td></tr>
+  <tr><td>Customers see "Please complete the security check"</td><td>They submitted before the check finished, or JavaScript is off in their browser. The form keeps what they typed; they tick the box and submit again.</td></tr>
+  <tr><td>Signups still get through with a wrong Secret key</td><td>By design. If Cloudflare rejects your Secret key or can't be reached, the plugin lets the submission through and writes a warning to your <code>logs</code> folder, so a typo or an outage never locks out real customers. Check the logs folder for "Turnstile" warnings.</td></tr>
+  <tr><td>Fake accounts already in your store</td><td>Turnstile stops new ones. Existing fake accounts need removing separately; we can help with that too.</td></tr>
+</table>
+
+<h2 id="privacy">8. Privacy and safety</h2>
+<ul>
+  <li>Cloudflare says Turnstile processes only the data it needs for the security check and doesn't read or send your visitors' form entries. Its full terms are in Cloudflare's Turnstile Privacy Addendum. Mention Cloudflare in your privacy notice as a security service provider.</li>
+  <li>The Secret key never leaves your server except to go to Cloudflare, and it's masked in the admin.</li>
+  <li>The plugin only talks to Cloudflare's Turnstile address and loads only Cloudflare's Turnstile script.</li>
+</ul>
+
+<h2 id="upgrade">9. Upgrading and uninstalling</h2>
+<p><strong>Upgrade:</strong> upload the new version folder beside the old one in <code>zc_plugins/Turnstile/</code> and click <strong>Upgrade</strong> in Plugin Manager. Your keys and choices are kept; new settings arrive with sensible defaults.</p>
+<p><strong>Uninstall:</strong> Plugin Manager &gt; Cloudflare Turnstile &gt; Uninstall removes the settings page and the keys. No template file was ever changed, so there's nothing else to undo. Delete the widget in Cloudflare too if you won't use it again.</p>
+
+<h2 id="pro">10. Turnstile Pro</h2>
+<p>Turnstile Pro is a separate add-on for stores that want more: protection for checkout against card testing (bots trying stolen cards through your store), the login and password-reset forms, product reviews and the other forms bots use, the admin login, per-form check styles, and a report of what was blocked. Ask us at <a href="https://myzencartzone.com/" target="_blank" rel="noopener noreferrer">myzencartzone.com</a>.</p>
+
+<h2 id="support">11. Support</h2>
+<p>Cloudflare Turnstile for Zen Cart is written and maintained by My Zen Cart Host (dbltoe). Please use the Zen Cart forum support thread linked from the plugin's panel in Plugin Manager, or the GitHub repository.</p>
+<p>Released under the GNU General Public License, version 2. Cloudflare and Turnstile are trademarks of Cloudflare, Inc.; this plugin is independent and isn't made or endorsed by Cloudflare.</p>
+</main>
+</body>
+</html>

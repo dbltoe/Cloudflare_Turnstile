@@ -6,7 +6,7 @@
  * idempotent, so an upgrade is simply a re-run of the install.
  *
  * @package  Turnstile
- * @license  http://www.zen-cart.com/license/2_0.txt GNU Public License V2.0
+ * @license  https://www.gnu.org/licenses/old-licenses/gpl-2.0.html GNU Public License V2.0
  */
 
 if (!defined('IS_ADMIN_FLAG')) {
@@ -32,6 +32,7 @@ class ScriptedInstaller extends ScriptedInstallBase
             return false;
         }
         $this->tsRegisterAdminPages($configGroupId);
+        $this->tsWarnIfTemplateLacksHook();
 
         $this->tsLog('Cloudflare Turnstile: installed/upgraded. It does nothing until a Site Key and Secret Key are entered under Configuration, Cloudflare Turnstile.', 'warning');
 
@@ -60,6 +61,58 @@ class ScriptedInstaller extends ScriptedInstallBase
         $this->tsLog('Cloudflare Turnstile: uninstalled. Settings removed; no template file was ever changed.', 'warning');
 
         return true;
+    }
+
+    /**
+     * The widget is placed by a script printed at NOTIFY_HTML_HEAD_END, which
+     * the template's common/html_header.php fires. Every stock template (and
+     * ZCA Bootstrap, and the Bootstrap 5 plugin template) does; an old custom
+     * template may not. Without it the check would be required but never
+     * shown, and nobody could sign up, so say so loudly. A warning, not a
+     * refusal: the store owner may be about to fix the template.
+     */
+    protected function tsWarnIfTemplateLacksHook()
+    {
+        $file = $this->tsActiveTemplateHeader();
+        if ($file === '' || strpos((string)file_get_contents($file), 'NOTIFY_HTML_HEAD_END') !== false) {
+            return;
+        }
+        $message = "Cloudflare Turnstile: your template's " . str_replace(DIR_FS_CATALOG, '', $file)
+            . " doesn't fire NOTIFY_HTML_HEAD_END, so the security check can't appear on your forms. Leave Turnstile switched off"
+            . ' (Configuration &gt; Cloudflare Turnstile) until that file has the line'
+            . " <code>\$zco_notifier->notify('NOTIFY_HTML_HEAD_END', \$current_page_base);</code> just before &lt;/head&gt;, as Zen Cart's own templates do.";
+        $this->tsLog($message, 'warning');
+        if (isset($GLOBALS['messageStack']) && is_object($GLOBALS['messageStack'])) {
+            $GLOBALS['messageStack']->add_session($message, 'warning');
+        }
+    }
+
+    /**
+     * The html_header.php the storefront actually uses: the active template's
+     * own, one supplied by a template plugin, or template_default's. '' when
+     * none can be found.
+     */
+    protected function tsActiveTemplateHeader()
+    {
+        if (!defined('DIR_FS_CATALOG')) {
+            return '';
+        }
+        $dir = 'template_default';
+        $row = $this->dbConn->Execute("SELECT template_dir FROM " . TABLE_TEMPLATE_SELECT . " WHERE template_language = 0 LIMIT 1");
+        if (!$row->EOF && preg_match('/^[A-Za-z0-9_-]+$/', (string)$row->fields['template_dir'])) {
+            $dir = (string)$row->fields['template_dir'];
+        }
+        $candidates = [DIR_FS_CATALOG . 'includes/templates/' . $dir . '/common/html_header.php'];
+        foreach (glob(DIR_FS_CATALOG . 'zc_plugins/*/*/catalog/includes/templates/' . $dir . '/common/html_header.php') ?: [] as $pluginFile) {
+            $candidates[] = $pluginFile;
+        }
+        $candidates[] = DIR_FS_CATALOG . 'includes/templates/template_default/common/html_header.php';
+        foreach ($candidates as $file) {
+            if (is_file($file)) {
+                return $file;
+            }
+        }
+        return '';
     }
 
     protected function tsLog($message, $severity = 'info')
@@ -191,7 +244,7 @@ class ScriptedInstaller extends ScriptedInstallBase
                 'key' => 'TURNSTILE_STATUS',
                 'title' => 'Enable Cloudflare Turnstile?',
                 'value' => 'true',
-                'description' => 'Master switch. <strong>true</strong> shows the Turnstile check on every create-account form and refuses an account whose check is missing or fails. Nothing happens until both keys below are filled in. <strong>false</strong> turns it off without uninstalling.',
+                'description' => 'Master switch. <strong>true</strong> shows the Turnstile check on the forms chosen below and refuses a submission whose check is missing or fails. Nothing happens until both keys below are filled in. <strong>false</strong> turns it off without uninstalling.',
                 'sort_order' => 10,
                 'use_function' => '',
                 'set_function' => "zen_cfg_select_option(array('true', 'false'), ",
@@ -213,6 +266,24 @@ class ScriptedInstaller extends ScriptedInstallBase
                 'sort_order' => 30,
                 'use_function' => 'zen_cfg_password_display',
                 'set_function' => '',
+            ],
+            [
+                'key' => 'TURNSTILE_CREATE_ACCOUNT',
+                'title' => 'Protect Create Account',
+                'value' => 'true',
+                'description' => "Check every form that creates an account: the Create Account page, the Login page's new-customer form and One Page Checkout's registration form.",
+                'sort_order' => 40,
+                'use_function' => '',
+                'set_function' => "zen_cfg_select_option(array('true', 'false'), ",
+            ],
+            [
+                'key' => 'TURNSTILE_CONTACT_US',
+                'title' => 'Protect Contact Us',
+                'value' => 'true',
+                'description' => 'Check the Contact Us form before its email is sent.',
+                'sort_order' => 50,
+                'use_function' => '',
+                'set_function' => "zen_cfg_select_option(array('true', 'false'), ",
             ],
         ];
     }
