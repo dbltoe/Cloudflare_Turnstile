@@ -6,7 +6,7 @@ Not submitted. Plugins Library submissions are on hold until the plugin-ID probl
 - **Type (category):** Other Modules. The Library's Google reCAPTCHA plugin and the older CAPTCHA plugins are listed there, so that's where store owners look.
 - **Zen Cart versions:** 2.0.0, 2.1.0, 2.2.0, 2.3, 3.0.0
 - **License:** GNU GPL v2
-- **Support thread:** (permalink once posted)
+- **Support thread:** https://www.zen-cart.com/threads/207429?page=1#post-1347614
 - **GitHub:** https://github.com/dbltoe/Cloudflare_Turnstile
 
 **Short description**

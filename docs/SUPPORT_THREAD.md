@@ -1,4 +1,4 @@
-**Support thread:** not posted yet. Post in **All Other Contributions/Addons** with the title **Cloudflare Turnstile [Support Thread]**. Once posted, the opening-post permalink (`/threads/N?page=1#post-M`) goes into the manifest's forum button and the readme, and the package is rebuilt. Opening post below.
+**Support thread:** https://www.zen-cart.com/threads/207429?page=1#post-1347614 ("Cloudflare Turnstile [Support Thread]", All Other Contributions/Addons), posted by John 2026-10-13. The permalink is in the manifest's forum button, the readme and README.md. Opening post below, as drafted.
 
 ---
 

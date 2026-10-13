@@ -15,7 +15,9 @@ An encapsulated plugin (`zc_plugins/Turnstile/`) for **Zen Cart 2.0 through 3.0.
 
 The full guide, with every Cloudflare screen, is `readme.html` (also inside the plugin and linked from Plugin Manager).
 
-**Rather not do it yourself?** We'll set it up for you for a flat fee. Ask at [myzencartzone.com](https://myzencartzone.com/).
+**Rather not do it yourself?** We'll set it up for you for a flat fee: [Cloudflare Turnstile Setup](https://myzencartzone.com/index.php?main_page=product_info&products_id=56) on myzencartzone.com.
+
+**Support:** the [Zen Cart forum support thread](https://www.zen-cart.com/threads/207429?page=1#post-1347614).
 
 ## Documents
 

@@ -26,7 +26,8 @@ check('pluginId is a bare integer', is_int($manifest['pluginId']) && preg_match(
 section('panel buttons');
 check('Read Me honors DIR_WS_CATALOG and exists', strpos($desc, 'href="/shop/zc_plugins/Turnstile/' . $version . '/readme.html"') !== false && is_file($PLUGIN . '/readme.html'));
 check('GitHub button and github_repo agree', strpos($desc, 'href="' . $manifest['github_repo'] . '"') !== false && $manifest['github_repo'] === 'https://github.com/dbltoe/Cloudflare_Turnstile');
-check('Forum Support Thread button wired (shown once the thread URL is set)', strpos(file_get_contents($PLUGIN . '/manifest.php'), 'Forum Support Thread') !== false);
+check('Forum Support Thread button links the opening-post permalink', strpos($desc, 'href="https://www.zen-cart.com/threads/207429?page=1#post-1347614"') !== false && strpos($desc, '>Forum Support Thread</a>') !== false);
+check('three buttons: Read Me, GitHub, Forum Support Thread', substr_count($desc, 'class="btn btn-primary" role="button"') === 3);
 check('buttons are btn btn-primary, opening safely', substr_count($desc, 'class="btn btn-primary" role="button"') >= 2 && substr_count($desc, 'rel="noopener noreferrer"') >= 2);
 check('the description names Contact Us and the dormant-until-keys rule', strpos($desc, 'Contact Us') !== false && strpos($desc, 'Configuration &gt; Cloudflare Turnstile') !== false);
 

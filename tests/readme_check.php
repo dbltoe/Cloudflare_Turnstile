@@ -27,7 +27,8 @@ check('says the site does not need to run through Cloudflare', strpos($readme, '
 section('the paid setup offer');
 check('offered near the top and in the docs', strpos($readme, 'class="offer"') !== false && strpos($readme, 'class="offer"') < strpos($readme, 'class="toc"') && strpos(file_get_contents($ROOT . '/docs/CONFIGURATION.md'), 'flat fee') !== false && strpos(file_get_contents($ROOT . '/README.md'), 'flat fee') !== false);
 check('no password sharing: invite as a member', strpos($readme, 'never have to share your Cloudflare password') !== false);
-check('points at our own site only, no vendor product URL', strpos($readme, 'https://myzencartzone.com/') !== false);
+check('the offer links our setup product (56), our own site only', strpos($readme, 'https://myzencartzone.com/index.php?main_page=product_info&amp;products_id=56') !== false);
+check('the readme links the forum support thread by its permalink', strpos($readme, 'https://www.zen-cart.com/threads/207429?page=1#post-1347614') !== false);
 
 section('American English, plain register');
 $texts = ['readme.html' => $readme];

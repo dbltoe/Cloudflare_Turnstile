@@ -23,7 +23,7 @@ $tsGithubUrl = 'https://github.com/dbltoe/Cloudflare_Turnstile';
  * The Zen Cart forum support thread: the opening-post permalink, set before
  * the first public release. Empty renders no button, which beats a link that 404s.
  */
-$tsForumUrl = '';
+$tsForumUrl = 'https://www.zen-cart.com/threads/207429?page=1#post-1347614';
 
 $tsGap = '6px';
 $tsLinks =

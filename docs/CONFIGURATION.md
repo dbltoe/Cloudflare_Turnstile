@@ -30,4 +30,4 @@ If Cloudflare is unreachable, or rejects the Secret Key itself, the submission i
 
 ## Doing it for you
 
-We'll do the whole setup for a flat fee: the widget, the plugin, the keys and a test signup on the live store. You invite us to your Cloudflare account under Manage account > Members, so no password is shared, and you can remove us afterward. Ask at myzencartzone.com.
+We'll do the whole setup for a flat fee: the widget, the plugin, the keys and a test signup on the live store. You invite us to your Cloudflare account under Manage account > Members, so no password is shared, and you can remove us afterward. See Cloudflare Turnstile Setup on myzencartzone.com: https://myzencartzone.com/index.php?main_page=product_info&products_id=56
