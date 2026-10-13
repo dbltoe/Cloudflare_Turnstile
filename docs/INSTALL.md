@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- Zen Cart 2.0.0 or later, on the PHP version it requires (8.0 to 8.5).
+- Zen Cart 1.5.8 or later, on the PHP version it requires (7.4 to 8.5).
 - A free Cloudflare account. The store doesn't need to run through Cloudflare.
 - A template whose `common/html_header.php` fires `NOTIFY_HTML_HEAD_END`. Every Zen Cart template, ZCA Bootstrap and the Bootstrap 5 plugin template do. The installer warns in the admin when the active template doesn't.
 

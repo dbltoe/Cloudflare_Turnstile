@@ -61,8 +61,8 @@
 <h2 id="requirements">2. Requirements</h2>
 <table>
   <tr><th>Item</th><th>Needed</th></tr>
-  <tr><td>Zen Cart</td><td>2.0.0 or later (2.0, 2.1, 2.2, 2.3, 3.0.0). Works with One Page Checkout.</td></tr>
-  <tr><td>PHP</td><td>8.0 or later, as Zen Cart 2.0 and later require (tested through PHP 8.5). curl is used when available; without it the plugin falls back to PHP's own HTTP functions.</td></tr>
+  <tr><td>Zen Cart</td><td>1.5.8 or later (1.5.8, 2.0, 2.1, 2.2, 2.3, 3.0.0). Works with One Page Checkout.</td></tr>
+  <tr><td>PHP</td><td>7.4 or later, whatever your Zen Cart version requires (tested on PHP 7.4 through 8.5). curl is used when available; without it the plugin falls back to PHP's own HTTP functions.</td></tr>
   <tr><td>Cloudflare</td><td>A free Cloudflare account. Your site does <strong>not</strong> need to run through Cloudflare; Turnstile works on any website.</td></tr>
   <tr><td>Template</td><td>Your template's <code>common/html_header.php</code> must fire <code>NOTIFY_HTML_HEAD_END</code>. Every Zen Cart template and ZCA Bootstrap do. The installer warns you if yours doesn't (see <a href="#troubleshooting">Troubleshooting</a>).</td></tr>
 </table>

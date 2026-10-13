@@ -1,7 +1,7 @@
 <#
     Run the lint and every harness against every PHP version that can be found.
 
-    The plugin claims PHP 8.0 through 8.5 (Zen Cart 2.1.0's floor up) from a single codebase, and that claim
+    The plugin claims PHP 7.4 through 8.5 (Zen Cart 1.5.8's floor up) from a single codebase, and that claim
     is only worth making if it is checked. Nothing here needs a web server or a
     database.
 
@@ -33,7 +33,7 @@ $root = Split-Path $here -Parent
 $searchRoots = @($PhpDir, 'F:\zclab\php', (Join-Path $here 'php')) | Where-Object { $_ -and (Test-Path $_) }
 
 $versions = [ordered]@{}
-foreach ($v in '8.0', '8.1', '8.2', '8.3', '8.4', '8.5') {
+foreach ($v in '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5') {
     foreach ($searchRoot in $searchRoots) {
         $exe = Join-Path $searchRoot ("php" + $v.Replace('.', '') + "\php.exe")
         if (Test-Path $exe) { $versions[$v] = $exe; break }
@@ -99,7 +99,7 @@ foreach ($v in $versions.Keys) {
 ''
 "order: lint, $($harnesses -join ', ')"
 
-$missing = @('8.0', '8.1', '8.2', '8.3', '8.4', '8.5') | Where-Object { -not $versions.Contains($_) }
+$missing = @('7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5') | Where-Object { -not $versions.Contains($_) }
 if ($missing) { "not checked: PHP $($missing -join ', ') -- no build found" }
 
 if ($problems) {

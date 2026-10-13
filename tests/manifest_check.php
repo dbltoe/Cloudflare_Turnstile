@@ -19,7 +19,7 @@ foreach (['pluginVersion', 'pluginName', 'pluginDescription', 'pluginAuthor', 'p
 check('pluginVersion matches the directory: ' . $version, $manifest['pluginVersion'] === $version);
 check('the observer reports the same version', strpos(file_get_contents($PLUGIN . '/catalog/includes/classes/observers/auto.turnstile.php'), "VERSION = '" . ltrim($version, 'v') . "'") !== false);
 check('changelog exists and names this version', is_file($PLUGIN . '/' . $manifest['changelog']) && strpos(file_get_contents($PLUGIN . '/' . $manifest['changelog']), $version) !== false);
-check('declares 2.0 through 3.0', $manifest['zcVersions'] === ['v200', 'v210', 'v220', 'v230', 'v300']);
+check('declares 1.5.8 through 3.0', $manifest['zcVersions'] === ['v158', 'v200', 'v210', 'v220', 'v230', 'v300']);
 check('author is the agreed string', $manifest['pluginAuthor'] === 'My Zen Cart Host (dbltoe)');
 check('pluginId is a bare integer', is_int($manifest['pluginId']) && preg_match("~'pluginId' => \d+,~", file_get_contents($PLUGIN . '/manifest.php')) === 1);
 

@@ -178,7 +178,7 @@ class zcObserverTurnstile extends base
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     var cfg = {$config};
-    var placed = 0;
+    var boxes = [];
     function matches(form, f) {
         var action = form.getAttribute('action') || '';
         if (action.indexOf(f.actionHas) === -1) { return false; }
@@ -206,17 +206,35 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             form.appendChild(box);
         }
-        // The normal widget is a fixed 300px; below that use the compact one
-        // (150px) rather than push the page sideways on a narrow phone.
-        box.setAttribute('data-size', box.getBoundingClientRect().width < 300 ? 'compact' : 'normal');
-        placed++;
+        boxes.push(box);
     });
-    if (placed > 0 && !document.querySelector('script[src="' + cfg.scriptUrl + '"]')) {
-        var s = document.createElement('script');
-        s.src = cfg.scriptUrl;
-        s.async = true;
-        document.head.appendChild(s);
+    if (boxes.length === 0) { return; }
+    // The normal widget is a fixed 300px; below that use the compact one
+    // (150px) rather than push the page sideways on a narrow phone. The size
+    // has to be set before Cloudflare renders, and responsive_classic keeps
+    // the whole page display:none until its own ready handler runs, when
+    // every box measures 0. So wait (up to 2 seconds) for the boxes to be
+    // laid out; if they never are, go by the window's width.
+    var waited = 0;
+    function render() {
+        var unmeasured = boxes.some(function (b) { return b.getBoundingClientRect().width === 0; });
+        if (unmeasured && waited < 2000) {
+            waited += 50;
+            setTimeout(render, 50);
+            return;
+        }
+        boxes.forEach(function (b) {
+            var width = b.getBoundingClientRect().width || document.documentElement.clientWidth;
+            b.setAttribute('data-size', width < 300 ? 'compact' : 'normal');
+        });
+        if (!document.querySelector('script[src="' + cfg.scriptUrl + '"]')) {
+            var s = document.createElement('script');
+            s.src = cfg.scriptUrl;
+            s.async = true;
+            document.head.appendChild(s);
+        }
     }
+    render();
 });
 </script>
 

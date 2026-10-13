@@ -18,6 +18,10 @@ First public release.
   zcObserverTurnstile::verifyToken().
 - siteverify calls verify Cloudflare's certificate explicitly; no curl_close()
   (deprecated in PHP 8.5).
+- Zen Cart 1.5.8 (PHP 7.4 and 8.0) is supported as well as 2.0 through 3.0.0.
+- The widget's size is chosen once the page is visible. Zen Cart's
+  responsive_classic template hides the page until its own script runs, so the
+  check always came out in its small "compact" size there, even on a desktop.
 
 ## v1.0.0 (2026-10-13)
 

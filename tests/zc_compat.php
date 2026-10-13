@@ -8,7 +8,7 @@ require __DIR__ . '/_bootstrap.php';
 
 $PLUGIN = ts_plugin_dir();
 $manifest = require $PLUGIN . '/manifest.php';
-$branchDirs = ['v200' => 'zc200', 'v210' => 'zc210', 'v220' => 'zc222', 'v230' => 'zc230', 'v300' => 'zc300'];
+$branchDirs = ['v158' => 'zc158', 'v200' => 'zc200', 'v210' => 'zc210', 'v220' => 'zc222', 'v230' => 'zc230', 'v300' => 'zc300'];
 $LAB = 'F:/zclab/sites';
 
 $calls = [];
@@ -27,7 +27,7 @@ $calls = array_keys($calls);
 sort($calls);
 echo '          zen_* functions called: ' . implode(', ', $calls) . "\n";
 
-section('source rules (PHP 8.0 floor)');
+section('source rules (PHP 7.4 floor, for Zen Cart 1.5.8)');
 $code = preg_replace('~"(?:\\\\.|[^"\\\\])*"|\'(?:\\\\.|[^\'\\\\])*\'|/\*.*?\*/|//[^\n]*~s', '""', $all);
 check('no zen_config() (3.0.0 only)', strpos($code, 'zen_config(') === false);
 check('no readonly / enum / never (PHP 8.1)', preg_match('~\b(readonly|enum)\s|:\s*never\b~', $code) === 0);
@@ -60,7 +60,7 @@ foreach ($available as $branch => $dir) {
     foreach ($missing as $fn) {
         echo "          missing: $fn\n";
     }
-    check("$branch: create_account fires NOTIFY_CREATE_ACCOUNT_VALIDATION_CHECK with \$error by reference", preg_match("~notify\('NOTIFY_CREATE_ACCOUNT_VALIDATION_CHECK',\s*\[\],\s*\\\$error~", file_get_contents($dir . '/includes/modules/create_account.php')) === 1);
+    check("$branch: create_account fires NOTIFY_CREATE_ACCOUNT_VALIDATION_CHECK with \$error by reference", preg_match("~notify\('NOTIFY_CREATE_ACCOUNT_VALIDATION_CHECK',\s*(?:\[\]|array\(\)),\s*\\\$error~", file_get_contents($dir . '/includes/modules/create_account.php')) === 1);
     $contact = file_get_contents($dir . '/includes/modules/pages/contact_us/header_php.php');
     $posNotify = strpos($contact, "notify('NOTIFY_CONTACT_US_CAPTCHA_CHECK'");
     $posTest = strpos($contact, '$error === false', (int)$posNotify);

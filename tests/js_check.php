@@ -43,8 +43,10 @@ check('matches a form on its action, a query parameter and a hidden field', strp
 check('a field value may be one of a list (process or register)', strpos($js, 'var wanted = [].concat(f.inputValue);') !== false && strpos($js, 'wanted.indexOf(field.value) === -1') !== false);
 check('never adds a second widget to a form', strpos($js, "if (form.querySelector('.cf-turnstile')) { return; }") !== false);
 check('placed above the submit button', strpos($js, "form.querySelector('[type=\"submit\"], input[type=\"image\"]')") !== false && strpos($js, 'insertBefore(box, anchor)') !== false);
-check('compact widget on a narrow column', strpos($js, "box.getBoundingClientRect().width < 300 ? 'compact' : 'normal'") !== false);
-check('Cloudflare\'s script loaded once, only when a widget was placed', strpos($js, 'if (placed > 0 && !document.querySelector') !== false);
+check('compact widget on a narrow column', strpos($js, "width < 300 ? 'compact' : 'normal'") !== false);
+check('size waits for a page that starts hidden (responsive_classic no-fouc)', strpos($js, 'setTimeout(render, 50)') !== false && strpos($js, 'waited < 2000') !== false && strpos($js, 'document.documentElement.clientWidth') !== false);
+check('api.js is added only after every box has its size', strpos($js, "b.setAttribute('data-size'") !== false && strpos($js, "b.setAttribute('data-size'") < strpos($js, 's.src = cfg.scriptUrl'));
+check('Cloudflare\'s script loaded once, only when a widget was placed', strpos($js, 'if (boxes.length === 0) { return; }') !== false && strpos($js, "if (!document.querySelector('script[src=\"' + cfg.scriptUrl + '\"]'))") !== false);
 check('no innerHTML, eval or document.write', preg_match('~innerHTML|outerHTML|insertAdjacentHTML|document\.write|\beval\(~', $js) === 0);
 check('no globals', preg_match('~\bwindow\.[a-zA-Z_]+\s*=(?!=)~', $js) === 0);
 
