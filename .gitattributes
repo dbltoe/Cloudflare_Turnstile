@@ -1,0 +1,14 @@
+# Line endings and file types.
+#
+# .editorconfig already asks editors for LF; this asks git for the same, so a
+# checkout on Windows cannot quietly turn a plugin file into CRLF and hand a
+# Zen Cart store a file that differs byte-for-byte from the one that was tested.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.zip binary
+*.pdf binary
