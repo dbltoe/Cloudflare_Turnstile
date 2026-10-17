@@ -49,7 +49,7 @@ return [
         . 'Key are entered under Configuration &gt; Cloudflare Turnstile.'
         . $tsLinks,
     'pluginAuthor' => 'My Zen Cart Host (dbltoe)',
-    'pluginId' => 0, // assigned by the Plugins Library on acceptance
+    'pluginId' => 3000, // the Plugins Library listing id (not the per-release id in a download URL)
     'zcVersions' => ['v158', 'v200', 'v210', 'v220', 'v230', 'v300'],
     'changelog' => 'changelog.txt',
     'github_repo' => $tsGithubUrl,
