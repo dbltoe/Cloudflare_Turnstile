@@ -14,9 +14,13 @@
 
 Nothing changes on the storefront until both keys are saved, so it's safe to install first and set up Cloudflare later.
 
+## Upgrade from v1.1.0
+
+Upload `v1.2.0` beside `v1.1.0` and click **Upgrade** in Plugin Manager. Your keys and your existing settings are kept. The two new settings, Protect Ask a Question and Protect Write a Review, arrive switched on, so both forms are protected from the moment the upgrade finishes. Switch either off under Configuration > Cloudflare Turnstile if you'd rather not check it.
+
 ## Upgrade from v1.0.0
 
-Upload `v1.1.0` beside `v1.0.0` and click **Upgrade** in Plugin Manager. The keys you entered are kept. The two new settings, Protect Create Account and Protect Contact Us, arrive switched on, so Contact Us is protected from the moment the upgrade finishes.
+Upload `v1.2.0` beside `v1.0.0` and click **Upgrade** in Plugin Manager. The keys you entered are kept. The four per-form settings all arrive switched on.
 
 ## Uninstall
 

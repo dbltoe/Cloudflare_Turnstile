@@ -21,6 +21,12 @@
  *                                           (1.5.8 through 3.0.0). Sets the
  *                                           page's $error, so no email is
  *                                           sent.
+ *   NOTIFY_ASK_A_QUESTION_CAPTCHA_CHECK     Core's own captcha hooks on Ask a
+ *   NOTIFY_REVIEWS_WRITE_CAPTCHA_CHECK      Question and Write a Review, on
+ *                                           every release 1.5.8 through
+ *                                           3.0.0. Both set the page's
+ *                                           $error, so no email is sent and
+ *                                           no review is stored.
  *
  * Each protected form is described once in forms(): the pages it can appear
  * on, how the script recognizes it, and the messageStack area its error goes
@@ -41,7 +47,7 @@ if (!defined('IS_ADMIN_FLAG')) {
 
 class zcObserverTurnstile extends base
 {
-    public const VERSION = '1.1.0';
+    public const VERSION = '1.2.0';
     public const SCRIPT_URL = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
     public const VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
     public const RESPONSE_FIELD = 'cf-turnstile-response';
@@ -61,6 +67,8 @@ class zcObserverTurnstile extends base
             'NOTIFY_HTML_HEAD_END',
             'NOTIFY_CREATE_ACCOUNT_VALIDATION_CHECK',
             'NOTIFY_CONTACT_US_CAPTCHA_CHECK',
+            'NOTIFY_ASK_A_QUESTION_CAPTCHA_CHECK',
+            'NOTIFY_REVIEWS_WRITE_CAPTCHA_CHECK',
         ]);
     }
 
@@ -111,6 +119,24 @@ class zcObserverTurnstile extends base
                 'inputValue' => '',
                 'actionParam' => 'action=send',
                 'errorStack' => 'contact',
+            ],
+            'ask_a_question' => [
+                'setting' => 'TURNSTILE_ASK_A_QUESTION',
+                'pages' => ['ask_a_question'],
+                'actionHas' => 'ask_a_question',
+                'inputName' => '',
+                'inputValue' => '',
+                'actionParam' => 'action=send',
+                'errorStack' => 'contact',
+            ],
+            'product_reviews_write' => [
+                'setting' => 'TURNSTILE_REVIEWS',
+                'pages' => ['product_reviews_write'],
+                'actionHas' => 'product_reviews_write',
+                'inputName' => '',
+                'inputValue' => '',
+                'actionParam' => 'action=process',
+                'errorStack' => 'review_text',
             ],
         ];
         $GLOBALS['zco_notifier']->notify('NOTIFY_TURNSTILE_FORMS', [], $forms);
@@ -268,6 +294,35 @@ HTML;
         }
         $GLOBALS['error'] = true;
         self::refuse('contact_us');
+    }
+
+    /**
+     * Ask a Question and Write a Review each fire a captcha notifier of their
+     * own on every release from 1.5.8 to 3.0.0. Like contact_us, both pages
+     * run at the top level of index.php and test their own $error directly
+     * after the notifier, so the refusal is made through $GLOBALS['error'].
+     */
+    public function updateNotifyAskAQuestionCaptchaCheck(&$class, $eventID, $post = [])
+    {
+        $this->checkPageForm('ask_a_question');
+    }
+
+    public function updateNotifyReviewsWriteCaptchaCheck(&$class, $eventID)
+    {
+        $this->checkPageForm('product_reviews_write');
+    }
+
+    /** The shared body of the two page-scope checks above. */
+    protected function checkPageForm(string $formName): void
+    {
+        if (!self::isActive() || !self::formEnabled($formName)) {
+            return;
+        }
+        if (self::verifyToken($_POST[self::RESPONSE_FIELD] ?? '', $formName)) {
+            return;
+        }
+        $GLOBALS['error'] = true;
+        self::refuse($formName);
     }
 
     /** Put the form's refusal message on its messageStack area. */

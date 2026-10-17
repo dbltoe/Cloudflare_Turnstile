@@ -66,6 +66,22 @@ foreach ($available as $branch => $dir) {
     $posTest = strpos($contact, '$error === false', (int)$posNotify);
     check("$branch: contact_us checks \$error right after NOTIFY_CONTACT_US_CAPTCHA_CHECK, before sending", $posNotify !== false && $posTest !== false && $posTest > $posNotify && strpos(substr($contact, (int)$posNotify, (int)$posTest - (int)$posNotify), 'zen_mail') === false);
     check("$branch: contact form posts to contact_us with action=send", strpos(file_get_contents($dir . '/includes/templates/template_default/templates/tpl_contact_us_default.php'), "zen_href_link(FILENAME_CONTACT_US, 'action=send'") !== false);
+
+    // Ask a Question: same shape as Contact Us, its own notifier.
+    $ask = file_get_contents($dir . '/includes/modules/pages/ask_a_question/header_php.php');
+    $posAsk = strpos($ask, "notify('NOTIFY_ASK_A_QUESTION_CAPTCHA_CHECK'");
+    $posAskGate = ($posAsk === false) ? false : strpos($ask, '$error', (int)$posAsk);
+    $posAskMail = ($posAsk === false) ? false : strpos($ask, 'zen_mail', (int)$posAsk);
+    check("$branch: ask_a_question tests \$error after NOTIFY_ASK_A_QUESTION_CAPTCHA_CHECK, before mailing", $posAsk !== false && $posAskGate !== false && $posAskMail !== false && $posAskGate < $posAskMail);
+    check("$branch: ask-a-question form posts to ask_a_question with action=send", strpos(file_get_contents($dir . '/includes/templates/template_default/templates/tpl_ask_a_question_default.php'), "zen_href_link(FILENAME_ASK_A_QUESTION, 'action=send") !== false);
+
+    // Write a Review: the notifier fires before the $error gate that gates the insert.
+    $rev = file_get_contents($dir . '/includes/modules/pages/product_reviews_write/header_php.php');
+    $posRev = strpos($rev, "notify('NOTIFY_REVIEWS_WRITE_CAPTCHA_CHECK'");
+    $posRevGate = ($posRev === false) ? false : strpos($rev, '$error == false', (int)$posRev);
+    $betweenRev = ($posRev !== false && $posRevGate !== false) ? substr($rev, (int)$posRev, (int)$posRevGate - (int)$posRev) : 'TABLE_REVIEWS';
+    check("$branch: product_reviews_write gates the review on \$error after NOTIFY_REVIEWS_WRITE_CAPTCHA_CHECK", $posRev !== false && $posRevGate !== false && strpos($betweenRev, 'TABLE_REVIEWS') === false);
+    check("$branch: review form posts to product_reviews_write with action=process", strpos(file_get_contents($dir . '/includes/templates/template_default/templates/tpl_product_reviews_write_default.php'), "zen_href_link(FILENAME_PRODUCT_REVIEWS_WRITE, 'action=process") !== false);
     foreach (['template_default', 'responsive_classic'] as $tpl) {
         $h = $dir . '/includes/templates/' . $tpl . '/common/html_header.php';
         if (is_file($h)) {

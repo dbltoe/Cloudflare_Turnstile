@@ -11,7 +11,7 @@ Not submitted. Plugins Library submissions are on hold until the plugin-ID probl
 
 **Short description**
 
-Stops bot signups and Contact Us spam with Cloudflare's free Turnstile check: no picture puzzles, nothing sent to Google. Protects every create-account form (core, the Login page's new-customer form and One Page Checkout's registration form) and Contact Us, each with its own switch. Encapsulated, no template edits, verified on the server through core notifiers.
+Stops bot signups and form spam with Cloudflare's free Turnstile check: no picture puzzles, nothing sent to Google. Protects every create-account form (core, the Login page's new-customer form and One Page Checkout's registration form), Contact Us, Ask a Question and Write a Review, each with its own switch. Encapsulated, no template edits, verified on the server through core notifiers.
 
 **What's new in v1.1.0**
 

@@ -2,7 +2,7 @@
 
 Stops bot signups and Contact Us spam with Cloudflare's free Turnstile check. No picture puzzles, and nothing goes to Google.
 
-The check goes on every create-account form (the Create Account page, the Login page's new-customer form, and One Page Checkout's registration form) and on Contact Us. Every submission is verified on the server, and one whose check is missing or fails is refused. No template file is changed.
+The check goes on every create-account form (the Create Account page, the Login page's new-customer form, and One Page Checkout's registration form), on Contact Us, on Ask a Question and on Write a Review. Each form has its own switch. Every submission is verified on the server, and one whose check is missing or fails is refused. No template file is changed.
 
 An encapsulated plugin (`zc_plugins/Turnstile/`) for **Zen Cart 1.5.8 through 3.0.0** on **PHP 7.4 through 8.5**.
 

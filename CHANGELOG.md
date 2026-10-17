@@ -1,5 +1,14 @@
 # Cloudflare Turnstile changelog
 
+## v1.2.0 (unreleased)
+
+- Two more forms are protected, each with its own on/off setting: Ask a Question
+  and Write a Review (both on by default). Both use the captcha notifier Zen Cart
+  fires on those pages itself, on every release from 1.5.8 to 3.0.0, so a refused
+  check means no email is sent and no review is stored.
+- That brings the free plugin to the four forms store owners ask about most:
+  Create Account, Contact Us, Ask a Question and Write a Review.
+
 ## v1.1.0 (2026-10-13)
 
 First public release.

@@ -1,15 +1,17 @@
 # Compatibility
 
-| Zen Cart | Create Account | Contact Us | Notes |
-|---|---|---|---|
-| 1.5.8 | yes | yes | PHP 7.4 or 8.0 |
-| 2.0.x | yes | yes | |
-| 2.1.x | yes | yes | |
-| 2.2.x | yes | yes | Live on a 2.2.2 store with ZCA Bootstrap and One Page Checkout |
-| 2.3 | yes | yes | |
-| 3.0.0 | yes | yes | |
+All four forms — Create Account, Contact Us, Ask a Question, Write a Review — work on every release below.
 
-The server-side checks use core notifiers that exist on every release listed: `NOTIFY_CREATE_ACCOUNT_VALIDATION_CHECK` (core `create_account.php`, and One Page Checkout's registration page) and `NOTIFY_CONTACT_US_CAPTCHA_CHECK` (core `contact_us` page). `tests/zc_compat.php` checks them against each branch.
+| Zen Cart | All four forms | Notes |
+|---|---|---|
+| 1.5.8 | yes | PHP 7.4 or 8.0 |
+| 2.0.x | yes | |
+| 2.1.x | yes | |
+| 2.2.x | yes | Live on a 2.2.2 store with ZCA Bootstrap and One Page Checkout |
+| 2.3 | yes | |
+| 3.0.0 | yes | |
+
+The server-side checks use core notifiers that exist on every release listed: `NOTIFY_CREATE_ACCOUNT_VALIDATION_CHECK` (core `create_account.php`, and One Page Checkout's registration page), `NOTIFY_CONTACT_US_CAPTCHA_CHECK` (core `contact_us` page), `NOTIFY_ASK_A_QUESTION_CAPTCHA_CHECK` and `NOTIFY_REVIEWS_WRITE_CAPTCHA_CHECK`. `tests/zc_compat.php` checks them against each branch.
 
 PHP 7.4 through 8.5. Every shipped file is linted, and every test runs, on each of them.
 
@@ -20,7 +22,9 @@ The widget is placed by a small script printed at `NOTIFY_HTML_HEAD_END`, which 
 The script finds forms by their action, not by template markup:
 
 - create account: the action contains `create_account` and the form carries `action=process` (core) or `action=register` (One Page Checkout's account-registration form);
-- Contact Us: the action contains `contact_us` and `action=send`.
+- Contact Us: the action contains `contact_us` and `action=send`;
+- Ask a Question: the action contains `ask_a_question` and `action=send`;
+- Write a Review: the action contains `product_reviews_write` and `action=process`.
 
 So a template that restyles those forms is fine as long as it keeps core's form actions.
 

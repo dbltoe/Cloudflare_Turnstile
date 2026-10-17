@@ -15,7 +15,7 @@
  * @license  https://www.gnu.org/licenses/old-licenses/gpl-2.0.html GNU Public License V2.0
  */
 
-$tsPluginDir = 'zc_plugins/Turnstile/v1.1.0/';
+$tsPluginDir = 'zc_plugins/Turnstile/v1.2.0/';
 $tsReadmeUrl = (defined('DIR_WS_CATALOG') ? DIR_WS_CATALOG : '/') . $tsPluginDir . 'readme.html';
 $tsGithubUrl = 'https://github.com/dbltoe/Cloudflare_Turnstile';
 
@@ -39,13 +39,14 @@ $tsLinks =
     . '</div>';
 
 return [
-    'pluginVersion' => 'v1.1.0',
+    'pluginVersion' => 'v1.2.0',
     'pluginName' => 'Cloudflare Turnstile',
     'pluginDescription' =>
-        'Adds Cloudflare\'s free Turnstile bot check to every create-account form (the Create Account page, '
-        . 'the Login page\'s new-customer form and One Page Checkout\'s registration form) and to Contact Us, '
-        . 'and refuses a submission whose check is missing or fails. No template file is changed. Stays dormant '
-        . 'until a Site Key and Secret Key are entered under Configuration &gt; Cloudflare Turnstile.'
+        'Adds Cloudflare\'s free Turnstile bot check to the forms bots abuse: every create-account form (the '
+        . 'Create Account page, the Login page\'s new-customer form and One Page Checkout\'s registration form), '
+        . 'Contact Us, Ask a Question and Write a Review. A submission whose check is missing or fails is refused. '
+        . 'Each form has its own switch and no template file is changed. Stays dormant until a Site Key and Secret '
+        . 'Key are entered under Configuration &gt; Cloudflare Turnstile.'
         . $tsLinks,
     'pluginAuthor' => 'My Zen Cart Host (dbltoe)',
     'pluginId' => 0, // assigned by the Plugins Library on acceptance

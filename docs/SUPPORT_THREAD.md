@@ -16,6 +16,10 @@ Every form that creates an account: the Create Account page, the new-customer fo
 
 Contact Us. A failed check means the message isn't sent.
 
+Ask a Question, on a product page. A failed check means the message isn't sent.
+
+Write a Review. A failed check means the review isn't stored.
+
 Each form has its own on/off switch. The check is placed just above the form's Submit or Send button, and every submission is verified on your server, so a bot that skips the page and posts straight to the form is refused too.
 
 **What it doesn't change**

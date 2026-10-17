@@ -146,7 +146,7 @@ class ScriptedInstaller extends ScriptedInstallBase
                 (configuration_group_title, configuration_group_description, sort_order, visible)
              VALUES
                 ('" . $this->dbConn->prepare_input(self::CONFIG_GROUP_TITLE) . "',
-                 'Cloudflare Turnstile bot check on the create-account forms.',
+                 'Cloudflare Turnstile bot check on the forms bots abuse.',
                  0, 1)"
         );
         if ($created === false) {
@@ -282,6 +282,24 @@ class ScriptedInstaller extends ScriptedInstallBase
                 'value' => 'true',
                 'description' => 'Check the Contact Us form before its email is sent.',
                 'sort_order' => 50,
+                'use_function' => '',
+                'set_function' => "zen_cfg_select_option(array('true', 'false'), ",
+            ],
+            [
+                'key' => 'TURNSTILE_ASK_A_QUESTION',
+                'title' => 'Protect Ask a Question',
+                'value' => 'true',
+                'description' => 'Check the Ask a Question form on a product page before its email is sent.',
+                'sort_order' => 60,
+                'use_function' => '',
+                'set_function' => "zen_cfg_select_option(array('true', 'false'), ",
+            ],
+            [
+                'key' => 'TURNSTILE_REVIEWS',
+                'title' => 'Protect Write a Review',
+                'value' => 'true',
+                'description' => 'Check the review form before the review is stored.',
+                'sort_order' => 70,
                 'use_function' => '',
                 'set_function' => "zen_cfg_select_option(array('true', 'false'), ",
             ],

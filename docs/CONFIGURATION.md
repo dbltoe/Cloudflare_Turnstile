@@ -23,6 +23,8 @@ Test keys for a test copy of the store: Site key `1x00000000000000000000AA` with
 | Secret Key | Masked in the admin. Only ever sent from the server to Cloudflare. |
 | Protect Create Account | The Create Account page, the Login page's new-customer form, One Page Checkout's registration form. |
 | Protect Contact Us | The Contact Us form; a failed check means no email is sent. |
+| Protect Ask a Question | The Ask a Question form on a product page; a failed check means no email is sent. |
+| Protect Write a Review | The review form; a failed check means the review isn't stored. |
 
 ## What happens when Cloudflare can't answer
 

@@ -145,6 +145,32 @@ $GLOBALS['error'] = false;
 $GLOBALS['zco_notifier']->notify('NOTIFY_CONTACT_US_CAPTCHA_CHECK', $_POST);
 check('a passed check leaves $error alone', $GLOBALS['error'] === false && $GLOBALS['messageStack']->messages === []);
 
+section('Ask a Question and Write a Review');
+foreach ([
+    ['ask_a_question', 'NOTIFY_ASK_A_QUESTION_CAPTCHA_CHECK', 'contact', '"actionHas":"ask_a_question"', '"actionParam":"action=send"'],
+    ['product_reviews_write', 'NOTIFY_REVIEWS_WRITE_CAPTCHA_CHECK', 'review_text', '"actionHas":"product_reviews_write"', '"actionParam":"action=process"'],
+] as $case) {
+    list($page, $event, $stack, $actionHas, $actionParam) = $case;
+
+    ts_fresh();
+    $head = ts_head($page);
+    check("$page: the widget script names the form and its action", strpos($head, $actionHas) !== false && strpos($head, $actionParam) !== false);
+
+    TsObserver::$replies = ['{"success":false,"error-codes":["invalid-input-response"]}'];
+    $_POST = ['cf-turnstile-response' => 'tok-bad'];
+    $GLOBALS['error'] = false;
+    $GLOBALS['zco_notifier']->notify($event, $_POST);
+    check("$page: a failed check sets the page's \$error, so core keeps nothing", $GLOBALS['error'] === true);
+    check("$page: the refusal lands on the $stack stack", ($GLOBALS['messageStack']->messages[0]['class'] ?? '') === $stack);
+
+    ts_fresh();
+    TsObserver::$replies = ['{"success":true}'];
+    $_POST = ['cf-turnstile-response' => 'tok-ok'];
+    $GLOBALS['error'] = false;
+    $GLOBALS['zco_notifier']->notify($event, $_POST);
+    check("$page: a passed check leaves \$error alone", $GLOBALS['error'] === false && $GLOBALS['messageStack']->messages === []);
+}
+
 section('the add-on seams');
 ts_fresh();
 $addon = new class {

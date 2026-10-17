@@ -68,8 +68,8 @@ ts_template('good_tpl', true);
 [$ok, $db] = ts_install('good_tpl');
 check('install succeeds', $ok === true);
 $inserts = $db->matching('INSERT IGNORE INTO zen_configuration ');
-check('five settings, each INSERT IGNORE so saved values survive', count($inserts) === 5);
-foreach (['TURNSTILE_STATUS', 'TURNSTILE_SITE_KEY', 'TURNSTILE_SECRET_KEY', 'TURNSTILE_CREATE_ACCOUNT', 'TURNSTILE_CONTACT_US'] as $key) {
+check('seven settings, each INSERT IGNORE so saved values survive', count($inserts) === 7);
+foreach (['TURNSTILE_STATUS', 'TURNSTILE_SITE_KEY', 'TURNSTILE_SECRET_KEY', 'TURNSTILE_CREATE_ACCOUNT', 'TURNSTILE_CONTACT_US', 'TURNSTILE_ASK_A_QUESTION', 'TURNSTILE_REVIEWS'] as $key) {
     check("$key is created", count(array_filter($inserts, static function ($s) use ($key) {
         return strpos($s, "'" . $key . "'") !== false;
     })) === 1);
@@ -80,9 +80,14 @@ check('the metadata UPDATEs never touch configuration_value', array_filter($db->
 check('the Secret Key is masked in the admin', count(array_filter($inserts, static function ($s) {
     return strpos($s, "'TURNSTILE_SECRET_KEY'") !== false && strpos($s, "'zen_cfg_password_display'") !== false;
 })) === 1);
-check('both form switches default to on', count(array_filter($inserts, static function ($s) {
-    return (strpos($s, "'TURNSTILE_CREATE_ACCOUNT'") !== false || strpos($s, "'TURNSTILE_CONTACT_US'") !== false) && strpos($s, "'true'") !== false;
-})) === 2);
+check('all four form switches default to on', count(array_filter($inserts, static function ($s) {
+    foreach (["'TURNSTILE_CREATE_ACCOUNT'", "'TURNSTILE_CONTACT_US'", "'TURNSTILE_ASK_A_QUESTION'", "'TURNSTILE_REVIEWS'"] as $key) {
+        if (strpos($s, $key) !== false) {
+            return strpos($s, "'true'") !== false;
+        }
+    }
+    return false;
+})) === 4);
 check('the configuration page is registered under Configuration', ($GLOBALS['ts_pages']['configTurnstile']['menu'] ?? '') === 'configuration' && ($GLOBALS['ts_pages']['configTurnstile']['params'] ?? '') === 'gID=42');
 check('no template warning when the hook is there', $GLOBALS['messageStack']->messages === []);
 
@@ -90,7 +95,7 @@ section('upgrade from v1.0.0');
 $db = new TsDb();
 $db->answers = ["configuration_group_title = 'Cloudflare Turnstile'" => [['configuration_group_id' => 42]], 'FROM zen_template_select' => [['template_dir' => 'good_tpl']]];
 (new ScriptedInstaller($db, new TsErrors()))->doUpgrade('v1.0.0');
-check('an upgrade re-runs the idempotent install (new keys arrive, old values stay)', count($db->matching('INSERT IGNORE INTO zen_configuration ')) === 5 && $db->matching('DELETE') === []);
+check('an upgrade re-runs the idempotent install (new keys arrive, old values stay)', count($db->matching('INSERT IGNORE INTO zen_configuration ')) === 7 && $db->matching('DELETE') === []);
 
 section('a template without the hook');
 ts_template('old_tpl', false);
