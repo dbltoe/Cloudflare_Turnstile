@@ -21,6 +21,9 @@ class ScriptedInstaller extends ScriptedInstallBase
 
     public const ADMIN_PAGE_KEYS = ['configTurnstile'];
 
+    /** plugin_control.unique_key: the zc_plugins folder name. */
+    public const PLUGIN_KEY = 'Turnstile';
+
     protected function executeInstall()
     {
         $configGroupId = $this->tsGetOrCreateConfigGroup();
@@ -35,6 +38,11 @@ class ScriptedInstaller extends ScriptedInstallBase
         $this->tsWarnIfTemplateLacksHook();
 
         $this->tsLog('Cloudflare Turnstile: installed/upgraded. It does nothing until a Site Key and Secret Key are entered under Configuration, Cloudflare Turnstile.', 'warning');
+
+        // After the admin page is registered, so the saved panel has the
+        // Settings button. executeUpgrade() runs this method, so an upgrade
+        // reaches it too.
+        $this->tsRefreshPluginDescription();
 
         return true;
     }
@@ -60,7 +68,43 @@ class ScriptedInstaller extends ScriptedInstallBase
 
         $this->tsLog('Cloudflare Turnstile: uninstalled. Settings removed; no template file was ever changed.', 'warning');
 
+        // After the admin page is deregistered, so the saved panel loses the
+        // Settings button.
+        $this->tsRefreshPluginDescription();
+
         return true;
+    }
+
+    /**
+     * Save the manifest's description again, now that the Settings page has
+     * been registered (install, upgrade) or removed (uninstall).
+     *
+     * Needed on v1.5.8, v2.0 and v2.1, which store plugin_control.description
+     * only when Plugin Manager first sees the plugin, before Install, so the
+     * Settings button (built in manifest.php from the registered admin page)
+     * would never appear there. v2.2 and later rewrite the description from
+     * the manifest on every Plugin Manager visit, so this is a no-op there in
+     * effect. Core's own install/uninstall step changes only status and
+     * version, so this description stays.
+     *
+     * @return bool
+     */
+    protected function tsRefreshPluginDescription()
+    {
+        if (!defined('TABLE_PLUGIN_CONTROL')) {
+            return true;
+        }
+        $manifest = require dirname(__DIR__) . '/manifest.php';
+        if (!is_array($manifest) || !isset($manifest['pluginDescription'])) {
+            return true;
+        }
+
+        return $this->executeInstallerSql(
+            "UPDATE " . TABLE_PLUGIN_CONTROL . "
+                SET description = '" . $this->dbConn->prepare_input($manifest['pluginDescription']) . "'
+              WHERE unique_key = '" . $this->dbConn->prepare_input(self::PLUGIN_KEY) . "'
+              LIMIT 1"
+        );
     }
 
     /**

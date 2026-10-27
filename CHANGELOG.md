@@ -1,5 +1,20 @@
 # Cloudflare Turnstile changelog
 
+## v1.2.1 (2026-10-27)
+
+Plugin Manager only. Nothing changes on the storefront or in the settings.
+
+- New Settings button in Plugin Manager. Once the plugin is installed, its info
+  panel has a Settings button that opens Configuration > Cloudflare Turnstile.
+  It isn't shown before Install or after Uninstall, and it works on every
+  supported release (1.5.8 through 3.0.0): the installer saves the panel again
+  at Install, Upgrade and Uninstall, because 1.5.8, 2.0 and 2.1 otherwise keep
+  the panel they saw first.
+- The buttons are one row: ReadMe | Settings | Forum Thread | GitHub. "Read Me"
+  is now "ReadMe" and "Forum Support Thread" is now "Forum Thread". The buttons
+  are a little narrower (8px side padding, 4px gaps), so all four fit on one
+  line from a 1366px-wide window up.
+
 ## v1.2.0 (unreleased)
 
 - Two more forms are protected, each with its own on/off setting: Ask a Question

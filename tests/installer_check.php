@@ -10,6 +10,10 @@ require __DIR__ . '/_bootstrap.php';
 define('IS_ADMIN_FLAG', true);
 $root = str_replace('\\', '/', sys_get_temp_dir()) . '/ts_installer_' . getmypid() . '/';
 define('DIR_FS_CATALOG', $root);
+define('DIR_WS_CATALOG', '/shop/');
+define('TABLE_PLUGIN_CONTROL', 'zen_plugin_control');
+define('TABLE_ADMIN_PAGES', 'zen_admin_pages');
+define('FILENAME_CONFIGURATION', 'configuration');
 ts_define_environment();
 
 $GLOBALS['ts_pages'] = [];
@@ -32,6 +36,30 @@ function zen_record_admin_activity($message, $severity)
 require __DIR__ . '/stubs/ScriptedInstallerBase.inc';
 require ts_plugin_dir() . '/Installer/ScriptedInstaller.php';
 
+/**
+ * The admin_pages lookup the manifest makes answers from the pages the fake
+ * zen_register_admin_page() holds right now, so the description the
+ * installer saves shows whether it ran before or after the page changed.
+ */
+class TsInstallerDb extends TsDb
+{
+    public function Execute($sql)
+    {
+        if (stripos($sql, 'FROM zen_admin_pages') !== false && preg_match("~page_key = '([^']+)'~", $sql, $m)) {
+            $this->log[] = preg_replace('/\s+/', ' ', trim($sql));
+            $page = $GLOBALS['ts_pages'][$m[1]] ?? null;
+            return new TsResult($page === null ? [] : [['main_page' => $page['file'], 'page_params' => $page['params']]]);
+        }
+        return parent::Execute($sql);
+    }
+}
+
+/** The description UPDATEs the installer sent to plugin_control. */
+function ts_description_updates(TsDb $db)
+{
+    return $db->matching('UPDATE zen_plugin_control SET description');
+}
+
 class TsErrors
 {
     public $errors = [];
@@ -51,7 +79,8 @@ function ts_template($dir, $withHook)
 
 function ts_install($templateDir)
 {
-    $db = new TsDb();
+    $db = new TsInstallerDb();
+    $GLOBALS['db'] = $db;
     $db->answers = [
         "configuration_group_title = 'Cloudflare Turnstile'" => [['configuration_group_id' => 42]],
         'FROM zen_template_select' => [['template_dir' => $templateDir]],
@@ -90,12 +119,21 @@ check('all four form switches default to on', count(array_filter($inserts, stati
 })) === 4);
 check('the configuration page is registered under Configuration', ($GLOBALS['ts_pages']['configTurnstile']['menu'] ?? '') === 'configuration' && ($GLOBALS['ts_pages']['configTurnstile']['params'] ?? '') === 'gID=42');
 check('no template warning when the hook is there', $GLOBALS['messageStack']->messages === []);
+$saved = ts_description_updates($db);
+check('the panel description is saved again, once', count($saved) === 1);
+check('for this plugin only (unique_key Turnstile)', isset($saved[0]) && strpos($saved[0], "WHERE unique_key = 'Turnstile' LIMIT 1") !== false);
+check('after the page is registered, so it has the Settings button', isset($saved[0]) && strpos($saved[0], '>Settings</a>') !== false && strpos($saved[0], 'index.php?cmd=configuration&amp;gID=42') !== false);
+check('it is the whole row: ReadMe | Settings | Forum Thread | GitHub', isset($saved[0]) && preg_match('~>ReadMe</a>.*>Settings</a>.*>Forum Thread</a>.*>GitHub</a>~', $saved[0]) === 1);
 
 section('upgrade from v1.0.0');
-$db = new TsDb();
+$GLOBALS['ts_pages'] = [];
+$db = new TsInstallerDb();
+$GLOBALS['db'] = $db;
 $db->answers = ["configuration_group_title = 'Cloudflare Turnstile'" => [['configuration_group_id' => 42]], 'FROM zen_template_select' => [['template_dir' => 'good_tpl']]];
 (new ScriptedInstaller($db, new TsErrors()))->doUpgrade('v1.0.0');
 check('an upgrade re-runs the idempotent install (new keys arrive, old values stay)', count($db->matching('INSERT IGNORE INTO zen_configuration ')) === 7 && $db->matching('DELETE') === []);
+$saved = ts_description_updates($db);
+check('an upgrade saves the panel too, with the Settings button', count($saved) === 1 && strpos($saved[0], '>Settings</a>') !== false);
 
 section('a template without the hook');
 ts_template('old_tpl', false);
@@ -116,11 +154,16 @@ $warn = $GLOBALS['messageStack']->messages[0]['message'] ?? '';
 check('a hostile template_dir value falls back to template_default, never a path', strpos($warn, 'includes/templates/template_default/common/html_header.php') !== false && strpos($warn, '..') === false);
 
 section('uninstall');
-$db = new TsDb();
+check('(the page is registered going in)', isset($GLOBALS['ts_pages']['configTurnstile']));
+$db = new TsInstallerDb();
+$GLOBALS['db'] = $db;
 $db->answers = ["configuration_group_title = 'Cloudflare Turnstile'" => [['configuration_group_id' => 42]]];
 (new ScriptedInstaller($db, new TsErrors()))->doUninstall();
 check('settings and the group are deleted by group id', count($db->matching('DELETE FROM zen_configuration WHERE configuration_group_id = 42')) === 1 && count($db->matching('DELETE FROM zen_configuration_group WHERE configuration_group_id = 42')) === 1);
 check('the admin page is deregistered', !isset($GLOBALS['ts_pages']['configTurnstile']));
+$saved = ts_description_updates($db);
+check('the panel description is saved again, once', count($saved) === 1);
+check('after the page is deregistered, so the Settings button is gone', isset($saved[0]) && strpos($saved[0], 'Settings</a>') === false && strpos($saved[0], '>ReadMe</a>') !== false && strpos($saved[0], '>GitHub</a>') !== false);
 
 // clean the throwaway store root
 $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST);

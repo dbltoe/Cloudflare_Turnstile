@@ -47,7 +47,7 @@ if (!defined('IS_ADMIN_FLAG')) {
 
 class zcObserverTurnstile extends base
 {
-    public const VERSION = '1.2.0';
+    public const VERSION = '1.2.1';
     public const SCRIPT_URL = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
     public const VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
     public const RESPONSE_FIELD = 'cf-turnstile-response';
