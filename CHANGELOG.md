@@ -15,7 +15,7 @@ Plugin Manager only. Nothing changes on the storefront or in the settings.
   are a little narrower (8px side padding, 4px gaps), so all four fit on one
   line from a 1366px-wide window up.
 
-## v1.2.0 (unreleased)
+## v1.2.0 (2026-10-17)
 
 - Two more forms are protected, each with its own on/off setting: Ask a Question
   and Write a Review (both on by default). Both use the captcha notifier Zen Cart

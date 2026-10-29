@@ -14,7 +14,7 @@ Plugin Manager only. Nothing changes on the storefront or in the settings.
   is now "ReadMe", "Forum Support Thread" is now "Forum Thread"), a little
   narrower so all four fit on one line from a 1366px window up.
 
-v1.2.0 (unreleased)
+v1.2.0 (2026-10-17)
 -------------------
 - Two more forms are protected, each with its own on/off setting: Ask a Question
   and Write a Review (both on by default). Both use the captcha notifier Zen Cart
