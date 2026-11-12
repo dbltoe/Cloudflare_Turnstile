@@ -4,8 +4,14 @@
  *
  * The description is echoed as raw HTML in the Plugin Manager's info panel,
  * beside the Install / Uninstall buttons, so the ReadMe, Settings, Forum
- * Thread and GitHub buttons go here. The ReadMe link is built from
- * DIR_WS_CATALOG so it works wherever the store lives.
+ * Thread and GitHub buttons go here.
+ *
+ * ReadMe opens README.md through the plugin's own admin page
+ * (index.php?cmd=turnstile_readme): behind the admin login, superusers only,
+ * in its own window. It is shown only to superusers; the page enforces that
+ * too, because Zen Cart 1.5.8-2.1 keep the description they first saw. Forum
+ * Thread and GitHub go off-site, so they open in a new window with
+ * rel="noopener noreferrer" (zencart/zencart#8031).
  *
  * On v2.2 and later the description is refreshed from this file on every
  * Plugin Manager scan; on v1.5.8, v2.0 and v2.1 it is captured once, when the
@@ -14,11 +20,17 @@
  * state-dependent part, the Settings button, is handled below.
  *
  * @package  Turnstile
- * @license  https://www.gnu.org/licenses/old-licenses/gpl-2.0.html GNU Public License V2.0
+ * @license  https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-$tsPluginDir = 'zc_plugins/Turnstile/v1.2.1/';
-$tsReadmeUrl = (defined('DIR_WS_CATALOG') ? DIR_WS_CATALOG : '/') . $tsPluginDir . 'readme.html';
+$tsReadmeUrl = 'index.php?cmd=turnstile_readme';
+// Zen Cart 3.0.0 reads every manifest on every admin page, early (template resolver),
+// before admin access is set up: zen_is_superuser() there is a fatal "Undefined constant
+// SUPERUSER_PROFILE" that takes down the whole admin. Ask only once that exists.
+$tsShowReadme = true;
+if (function_exists('zen_is_superuser') && defined('SUPERUSER_PROFILE')) {
+    $tsShowReadme = zen_is_superuser();
+}
 $tsGithubUrl = 'https://github.com/dbltoe/Cloudflare_Turnstile';
 
 /**
@@ -80,7 +92,7 @@ $tsButton = static function ($url, $label, $newTab) use ($tsButtonStyle) {
 
 $tsLinks =
     '<div style="margin:10px 0 0;padding:0 0 0 ' . $tsGap . '">'
-    . $tsButton($tsReadmeUrl, 'ReadMe', true)
+    . ($tsShowReadme ? $tsButton($tsReadmeUrl, 'ReadMe', true) : '')
     . ($tsSettingsUrl !== '' ? $tsButton($tsSettingsUrl, 'Settings', false) : '')
     // Renders nothing while $tsForumUrl is empty.
     . ($tsForumUrl !== '' ? $tsButton($tsForumUrl, 'Forum Thread', true) : '')
@@ -88,7 +100,7 @@ $tsLinks =
     . '</div>';
 
 return [
-    'pluginVersion' => 'v1.2.1',
+    'pluginVersion' => 'v1.2.2',
     'pluginName' => 'Cloudflare Turnstile',
     'pluginDescription' =>
         'Adds Cloudflare\'s free Turnstile bot check to the forms bots abuse: every create-account form (the '

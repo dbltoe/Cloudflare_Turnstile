@@ -48,6 +48,15 @@ function report($label, array $hits)
     }
 }
 
+// The admin ReadMe page is the one file allowed to read a local file and echo a
+// variable; what it reads and echoes is pinned down by its own checks below.
+$READMEPAGE = 'admin/turnstile_readme.php';
+$readmePageSrc = (string)file_get_contents($PLUGIN . '/' . $READMEPAGE);
+$notReadmePage = array_values(array_filter($files, static function ($p) use ($READMEPAGE) {
+    return rel($p) !== $READMEPAGE;
+}));
+check('the ReadMe page is the only file set aside, and it is there', count($files) - count($notReadmePage) === 1 && $readmePageSrc !== '');
+
 $obs = file_get_contents($PLUGIN . '/catalog/includes/classes/observers/auto.turnstile.php');
 $inst = file_get_contents($PLUGIN . '/Installer/ScriptedInstaller.php');
 echo 'scanning ' . count($files) . " shipped files\n";
@@ -60,10 +69,17 @@ report('no innerHTML/outerHTML/document.write', scan($files, '~\b(innerHTML|oute
 section('remote calls');
 /* The siteverify POST is the plugin's purpose; curl, with a file_get_contents
  * fallback for hosts without curl, both to Cloudflare's fixed URL only. */
-report('remote calls only in the observer\'s post()', scan($files, '~\b(unserialize|file_get_contents|curl_init|fsockopen)\s*\(~i', [
+report('remote calls only in the observer\'s post()', scan($notReadmePage,'~\b(unserialize|file_get_contents|curl_init|fsockopen)\s*\(~i', [
     '~auto\.turnstile\.php:\s*(if \(function_exists\(\'curl_init\'\)\)|\$ch = curl_init\(self::VERIFY_URL\);|\$response = @file_get_contents\(self::VERIFY_URL, false, \$context\);)~',
     '~ScriptedInstaller\.php:.*strpos\(\(string\)file_get_contents\(\$file\)~',
 ]));
+check('the one exception, the admin ReadMe page, reads only its own README.md (a fixed local path)',
+    substr_count($readmePageSrc, 'file_get_contents(') === 1
+    && strpos($readmePageSrc, '$tsReadmeFile = dirname(__DIR__) . \'/README.md\';') !== false
+    && strpos($readmePageSrc, 'file_get_contents($tsReadmeFile)') !== false
+    && preg_match('~\b(unserialize|curl_init|curl_exec|fsockopen|stream_socket_client|fopen|readfile|include|include_once|require_once)\s*\(~i', $readmePageSrc) === 0
+    && substr_count($readmePageSrc, 'require ') === 1 && strpos($readmePageSrc, "require 'includes/application_top.php';") !== false
+    && preg_match('~\$_(GET|POST|REQUEST|COOKIE|SERVER|FILES)~', $readmePageSrc) === 0);
 preg_match_all('~https://[a-z0-9./_-]+~i', preg_replace('~/\*.*?\*/|(?<=\s)//[^\n]*~s', '', $obs), $m);
 $urls = array_values(array_unique($m[0]));
 sort($urls);
@@ -82,6 +98,15 @@ check('the page script is built with json_encode and the HEX flags', strpos($obs
 check('the token is length-checked before use', strpos($obs, 'strlen($token) > 2048') !== false);
 check('the visitor IP is validated before it is sent', strpos($obs, 'filter_var($ip, FILTER_VALIDATE_IP)') !== false);
 check('the template name from the database is whitelisted before it becomes a path', strpos($inst, "preg_match('/^[A-Za-z0-9_-]+\$/', (string)\$row->fields['template_dir'])") !== false);
+report('no variable echoed outside the ReadMe page', scan($notReadmePage, '~\becho\s+\$[a-z_]~i'));
+check('the one exception, the admin ReadMe page, echoes only the escape-first Markdown render',
+    substr_count($readmePageSrc, 'echo ') === 1 && strpos($readmePageSrc, '<?php echo $tsReadmeHtml; ?>') !== false
+    && strpos($readmePageSrc, '$text = htmlspecialchars((string)$text, ENT_QUOTES, \'UTF-8\');') !== false
+    && preg_match('~\bprint(f|_r)?\s*\(|\bprint\s~', $readmePageSrc) === 0 && stripos($readmePageSrc, '<script') === false);
+check('the ReadMe page is behind the login and for superusers only',
+    strpos($readmePageSrc, "require 'includes/application_top.php';") !== false
+    && strpos($readmePageSrc, "require 'includes/application_top.php';") < strpos($readmePageSrc, "if (!function_exists('zen_is_superuser') || !zen_is_superuser())")
+    && strpos($readmePageSrc, "zen_redirect(zen_href_link(FILENAME_DENIED, '', 'SSL'));") < strpos($readmePageSrc, 'file_get_contents('));
 report('no request data in SQL', scan($files, '~(SELECT|INSERT|UPDATE|DELETE|WHERE|VALUES)\b[^;]*\$_(GET|POST|REQUEST|COOKIE)~i'));
 report('every table through a constant', scan($files, '~"\s*(SELECT|INSERT[A-Z ]*INTO|UPDATE|DELETE FROM)\b[^"]*\b(FROM|INTO|UPDATE)\s+[a-z_]{3,}\b~i'));
 
@@ -94,5 +119,11 @@ foreach ($files as $p) {
     }
 }
 report('every included file carries the guard', $noGuard);
+
+section('license');
+check('the readme names the GPL license', preg_match('~GNU General Public License, version 3~', (string)file_get_contents($PLUGIN . '/README.md')) === 1);
+check('every PHP file carries the GPL v3 header', count(array_filter($files, static function ($p) {
+    return substr($p, -4) === '.php' && strpos(file_get_contents($p), 'https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0') === false;
+})) === 0);
 
 ts_done('security scan clean');

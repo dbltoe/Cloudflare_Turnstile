@@ -39,9 +39,12 @@ foreach ($f in $docs) { Copy-Item (Join-Path $root "docs\$f") (Join-Path $dist "
 # The whole plugin, in its zc_plugins path, exactly as it must be uploaded.
 Copy-Item (Join-Path $root 'zc_plugins') (Join-Path $dist 'zc_plugins') -Recurse
 
-# readme.html again at the package root, so it can be opened straight out of
-# the download without digging four levels down.
-Copy-Item (Join-Path $root "zc_plugins\Turnstile\$version\readme.html") (Join-Path $dist 'readme.html')
+# README.md is at the package root (above) and inside the plugin (in zc_plugins), where
+# the admin ReadMe page reads it; the two must be the same file, which
+# tests\readme_check.php also checks.
+if ((Get-FileHash (Join-Path $dist 'README.md')).Hash -ne (Get-FileHash (Join-Path $dist "zc_plugins\Turnstile\$version\README.md")).Hash) {
+    throw 'README.md at the root and in the plugin differ'
+}
 
 if (Test-Path $zip) { Remove-Item $zip -Force }
 Add-Type -AssemblyName System.IO.Compression.FileSystem

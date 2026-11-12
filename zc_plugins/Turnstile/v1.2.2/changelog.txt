@@ -1,6 +1,18 @@
 Cloudflare Turnstile changelog
 ==============================
 
+v1.2.2 (2026-11-11)
+-------------------
+- License: GNU General Public License, version 3 (was version 2).
+- readme.html is replaced by README.md. The ReadMe button in Plugin Manager
+  opens it inside the admin, for superusers only, in its own window
+  (index.php?cmd=turnstile_readme); it is no longer a public file under
+  zc_plugins/. The same README.md is at the root of the download.
+- Nothing changes on the storefront or in the settings.
+
+Upgrading: put the v1.2.2 folder beside the old one and click Upgrade in
+Admin > Modules > Plugin Manager. Your keys and settings are kept.
+
 v1.2.1 (2026-10-27)
 -------------------
 Plugin Manager only. Nothing changes on the storefront or in the settings.

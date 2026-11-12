@@ -44,7 +44,15 @@ check('author is the agreed string', $manifest['pluginAuthor'] === 'My Zen Cart 
 check('pluginId is a bare integer', is_int($manifest['pluginId']) && preg_match("~'pluginId' => \d+,~", file_get_contents($PLUGIN . '/manifest.php')) === 1);
 
 section('panel buttons');
-check('ReadMe honors DIR_WS_CATALOG and exists', strpos($desc, 'href="/shop/zc_plugins/Turnstile/' . $version . '/readme.html"') !== false && is_file($PLUGIN . '/readme.html'));
+check('ReadMe opens the admin readme page in its own window, not a public file',
+    strpos($desc, '<a href="index.php?cmd=turnstile_readme" target="_blank" rel="noopener noreferrer" class="btn btn-primary" role="button"') !== false
+    && strpos($desc, 'readme.html') === false && strpos($desc, '/shop/') === false && strpos($desc, 'zc_plugins/') === false);
+check('the page and the README.md it shows exist', is_file($PLUGIN . '/admin/turnstile_readme.php') && is_file($PLUGIN . '/README.md') && !is_file($PLUGIN . '/readme.html'));
+check('no version-specific path is hard-coded in the manifest', strpos($src, 'zc_plugins/Turnstile/v') === false && strpos($src, 'DIR_WS_CATALOG') === false && strpos($src, 'readme.html') === false);
+check('the ReadMe button is for superusers, asked only once admin access exists',
+    strpos($src, "\$tsShowReadme = true;\nif (function_exists('zen_is_superuser') && defined('SUPERUSER_PROFILE')) {\n    \$tsShowReadme = zen_is_superuser();\n}") !== false
+    && strpos($src, "(\$tsShowReadme ? \$tsButton(\$tsReadmeUrl, 'ReadMe', true) : '')") !== false
+    && substr_count($src, 'zen_is_superuser()') === 1 + substr_count($src, 'zen_is_superuser() there is'));
 check('GitHub button and github_repo agree', strpos($desc, 'href="' . $manifest['github_repo'] . '"') !== false && $manifest['github_repo'] === 'https://github.com/dbltoe/Cloudflare_Turnstile');
 check('Forum Thread button links the opening-post permalink', strpos($desc, 'href="https://www.zen-cart.com/threads/207429?page=1#post-1347614"') !== false && strpos($desc, '>Forum Thread</a>') !== false);
 $hasSettings = ($state === 'settings');
@@ -57,13 +65,15 @@ check('the row reads ' . implode(' | ', $labels[1]), $labels[1] === ($hasSetting
 check('they share a single row (nothing block-level between them)', preg_match('~>ReadMe</a>\s*<a~', $desc) === 1 && substr_count($desc, '<div') === 1);
 check('equal 4px spacing and 8px side padding on every button', strpos($desc, 'padding:0 0 0 4px') !== false
     && substr_count($desc, 'style="margin:0 4px 0 0;padding-left:8px;padding-right:8px"') === $buttons);
-check('the new-tab buttons open safely', substr_count($desc, 'target="_blank" rel="noopener noreferrer"') === 3);
+check('the new-window buttons open safely (ReadMe, Forum Thread, GitHub)', substr_count($desc, 'target="_blank" rel="noopener noreferrer"') === 3 && substr_count($desc, 'target="_blank"') === 3);
 check('no old labels left', strpos($desc, 'Read Me') === false && strpos($desc, 'Forum Support Thread') === false);
 
 section('the Settings button');
 if ($hasSettings) {
     check('links relatively to the store\'s own Configuration group', strpos($desc, 'href="index.php?cmd=configuration&amp;gID=42" class="btn btn-primary"') !== false);
-    check('opens in the same tab (it is the admin itself)', preg_match('~href="index.php[^"]*" target=~', $desc) === 0);
+    // ReadMe is an admin link too, but opens in its own window; Settings stays in this one.
+    check('opens in the same tab (it is the admin itself)', preg_match('~href="index\.php\?cmd=configuration[^"]*" target=~', $desc) === 0
+        && preg_match_all('~href="index\.php[^"]*" target=~', $desc) === 1);
     check('looked up by the installer\'s page key', count($db->matching("page_key = 'configTurnstile'")) === 1);
 } else {
     check('absent when the page is not registered or this is no admin read', strpos($desc, '>Settings<') === false);
@@ -80,8 +90,42 @@ foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($PLUGIN, F
     $all .= file_get_contents($f->getPathname());
 }
 check('no zen-cart.com license URL anywhere (GNU URL only)', strpos($all, 'zen-cart.com/license') === false && strpos(file_get_contents(ts_repo_root() . '/LICENSE'), 'gnu.org') !== false);
+check('LICENSE is the GNU GPL version 3', strpos(file_get_contents(ts_repo_root() . '/LICENSE'), 'Version 3, 29 June 2007') !== false);
+$noHeader = [];
+foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($PLUGIN, FilesystemIterator::SKIP_DOTS)) as $f) {
+    if (strtolower($f->getExtension()) === 'php'
+        && substr_count(file_get_contents($f->getPathname()), '@license  https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0') !== 1) {
+        $noHeader[] = $f->getFilename();
+    }
+}
+check('every PHP file carries the GPL v3 @license line, once' . ($noHeader ? ': ' . implode(', ', $noHeader) : ''), $noHeader === []);
+check('nothing shipped still says GPL v2', preg_match('~gpl-2\.0|old-licenses|Public License,? (V|version )2|GPL[ -]?v?2~i', str_replace('(was version 2)', '', $all)) === 0);
 
 if ($state === 'not-installed') {
+    // Non-superusers get no ReadMe button (a child PHP, so zen_is_superuser() can be
+    // defined; a temp script, because escapeshellarg() strips double quotes on Windows).
+    $childScript = tempnam(sys_get_temp_dir(), 'ts');
+    file_put_contents($childScript, '<?php define(\'SUPERUSER_PROFILE\', 1); function zen_is_superuser() { return false; } $m = require ' . var_export($PLUGIN . '/manifest.php', true) . ';'
+        . ' echo (strpos($m[\'pluginDescription\'], \'ReadMe\') === false && strpos($m[\'pluginDescription\'], \'turnstile_readme\') === false'
+        . ' && strpos($m[\'pluginDescription\'], \'>Forum Thread</a>\') !== false && strpos($m[\'pluginDescription\'], \'>GitHub</a>\') !== false) ? \'hidden\' : \'shown\';');
+    $childOut = trim((string)shell_exec(escapeshellarg(PHP_BINARY) . ' -d error_reporting=E_ALL ' . escapeshellarg($childScript) . ' 2>&1'));
+    unlink($childScript);
+    check('a non-superuser sees no ReadMe button, and the rest of the row stays', $childOut === 'hidden');
+    $childScript = tempnam(sys_get_temp_dir(), 'ts');
+    file_put_contents($childScript, '<?php define(\'SUPERUSER_PROFILE\', 1); function zen_is_superuser() { return true; } $m = require ' . var_export($PLUGIN . '/manifest.php', true) . ';'
+        . ' echo (strpos($m[\'pluginDescription\'], \'href="index.php?cmd=turnstile_readme"\') !== false && strpos($m[\'pluginDescription\'], \'>ReadMe</a>\') !== false) ? \'shown\' : \'hidden\';');
+    $childOut = trim((string)shell_exec(escapeshellarg(PHP_BINARY) . ' -d error_reporting=E_ALL ' . escapeshellarg($childScript) . ' 2>&1'));
+    unlink($childScript);
+    check('a superuser sees it', $childOut === 'shown');
+    // Zen Cart 3.0.0 reads manifests early on every admin page, before SUPERUSER_PROFILE
+    // exists; core's zen_is_superuser() then dies on the undefined constant.
+    $childScript = tempnam(sys_get_temp_dir(), 'ts');
+    file_put_contents($childScript, '<?php function zen_is_superuser() { return 1 === SUPERUSER_PROFILE; } $m = require ' . var_export($PLUGIN . '/manifest.php', true) . ';'
+        . ' echo (strpos($m[\'pluginDescription\'], \'>ReadMe</a>\') !== false) ? \'loaded\' : \'loaded without the button\';');
+    $childOut = trim((string)shell_exec(escapeshellarg(PHP_BINARY) . ' -d error_reporting=E_ALL ' . escapeshellarg($childScript) . ' 2>&1'));
+    unlink($childScript);
+    check('the manifest loads before admin access exists (3.0.0 reads it on every admin page)', $childOut === 'loaded');
+
     $out = [];
     $status = 1;
     exec(escapeshellarg(PHP_BINARY) . ' -d error_reporting=E_ALL ' . escapeshellarg(__FILE__) . ' settings 2>&1', $out, $status);

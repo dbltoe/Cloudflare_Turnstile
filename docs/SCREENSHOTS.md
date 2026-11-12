@@ -15,9 +15,8 @@ Captured 2026-10-17 from the live haredo.com store and Mark's Cloudflare account
 
 They were made for the Plugins Library reviewer, but they belong in the documentation, where they answer "what will this look like and what do I have to do".
 
-- **`readme.html`, the Cloudflare setup guide.** It walks through creating the widget in words only. Add `cloudflare-widget-hostnames-mode.jpg` at the "add your hostnames, leave the mode on Managed" step and `cloudflare-widget-keys.jpg` at the "copy the two keys" step, then `turnstile-admin-configuration.png` where the keys get pasted into Zen Cart. Remember the readme ships in two places (inside the plugin and at the package root), so the images need a path that works from both — a `docs/screenshots/` folder copied by the build script, referenced relatively.
-- **`docs/CONFIGURATION.md`.** Same three images, same order.
-- **`README.md`.** One image only: `widget-live-success-haredo.png`, near the top, so the repo shows what the plugin puts on the page.
+- **`docs/CONFIGURATION.md`, the Cloudflare setup.** It walks through creating the widget in words only. Add `cloudflare-widget-hostnames-mode.jpg` at the "add your hostnames, leave the mode on Managed" step and `cloudflare-widget-keys.jpg` at the "copy the two keys" step, then `turnstile-admin-configuration.png` where the keys get pasted into Zen Cart. The images need a `docs/screenshots/` folder copied by the build script, referenced relatively.
+- **Not `README.md`.** Since v1.2.2 the guide is README.md, shown inside the admin by the ReadMe button, and that page renders text only (no images, by design), so the pictures go in `docs/` and on the product and listing pages instead.
 - **The Plugins Library listing** (`docs/PLUGIN_LIBRARY_LISTING.md`) and the myzencartzone product page: the live widget shot plus the analytics shot, which is the one that argues for the plugin rather than describing it.
 - **Worth writing alongside them:** a short "what your visitors see" section. Managed mode usually verifies silently and shows the success box; the checkbox only appears when Cloudflare wants interaction. People expect reCAPTCHA's "I'm not a robot" and need to be told the quiet case is normal, not a broken widget.
 

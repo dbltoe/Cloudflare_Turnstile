@@ -6,7 +6,7 @@
  * idempotent, so an upgrade is simply a re-run of the install.
  *
  * @package  Turnstile
- * @license  https://www.gnu.org/licenses/old-licenses/gpl-2.0.html GNU Public License V2.0
+ * @license  https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
 if (!defined('IS_ADMIN_FLAG')) {
