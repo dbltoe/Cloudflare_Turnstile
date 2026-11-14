@@ -90,16 +90,16 @@ foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($PLUGIN, F
     $all .= file_get_contents($f->getPathname());
 }
 check('no zen-cart.com license URL anywhere (GNU URL only)', strpos($all, 'zen-cart.com/license') === false && strpos(file_get_contents(ts_repo_root() . '/LICENSE'), 'gnu.org') !== false);
-check('LICENSE is the GNU GPL version 3', strpos(file_get_contents(ts_repo_root() . '/LICENSE'), 'Version 3, 29 June 2007') !== false);
+check('LICENSE is the GNU GPL version 2', strpos(file_get_contents(ts_repo_root() . '/LICENSE'), 'Version 2, June 1991') !== false);
 $noHeader = [];
 foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($PLUGIN, FilesystemIterator::SKIP_DOTS)) as $f) {
     if (strtolower($f->getExtension()) === 'php'
-        && substr_count(file_get_contents($f->getPathname()), '@license  https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0') !== 1) {
+        && substr_count(file_get_contents($f->getPathname()), '@license  https://www.gnu.org/licenses/old-licenses/gpl-2.0.html GNU General Public License v2.0') !== 1) {
         $noHeader[] = $f->getFilename();
     }
 }
-check('every PHP file carries the GPL v3 @license line, once' . ($noHeader ? ': ' . implode(', ', $noHeader) : ''), $noHeader === []);
-check('nothing shipped still says GPL v2', preg_match('~gpl-2\.0|old-licenses|Public License,? (V|version )2|GPL[ -]?v?2~i', str_replace('(was version 2)', '', $all)) === 0);
+check('every PHP file carries the GPL v2 @license line, once' . ($noHeader ? ': ' . implode(', ', $noHeader) : ''), $noHeader === []);
+check('nothing shipped says GPL v3', preg_match('~gpl-3\.0|Public License,? (V|version )3(?![.\d])|GPL[ -]?v?3(?![.\d])~i', $all) === 0);
 
 if ($state === 'not-installed') {
     // Non-superusers get no ReadMe button (a child PHP, so zen_is_superuser() can be

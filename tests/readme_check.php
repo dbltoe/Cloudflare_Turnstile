@@ -23,16 +23,16 @@ check('no readme.html anywhere (it was served publicly from zc_plugins/)',
 check('the package-root README.md is byte-identical to the plugin\'s',
     is_file($ROOT . '/README.md') && md5_file($ROOT . '/README.md') === md5_file($PLUGIN . '/README.md'));
 check('the top block has the agreed shape', strpos($readme, "# Cloudflare Turnstile\n\nVersion " . ltrim($version, 'v')
-    . " \u{00B7} Zen Cart 1.5.8 through 3.0.0 \u{00B7} PHP 7.4 through 8.5 \u{00B7} GPL v3 \u{00B7} by My Zen Cart Host (dbltoe)\n\n") === 0);
+    . " \u{00B7} Zen Cart 1.5.8 through 3.0.0 \u{00B7} PHP 7.4 through 8.5 \u{00B7} GPL v2 \u{00B7} by My Zen Cart Host (dbltoe)\n\n") === 0);
 check('every path it quotes uses this version directory',
     preg_match_all('~zc_plugins/Turnstile/(v[0-9.]+)~', $readme, $m) > 0
     && count(array_unique($m[1])) === 1 && $m[1][0] === $version);
 check('it has at least 12 sections', preg_match_all('~^## ~m', $readme) >= 12);
 check('it ends with Changelog, then License', preg_match('~\n## Changelog\n\nSee `CHANGELOG\.md`\.[^\n]+\n\n## License\n\n~', $readme) === 1);
-check('it names the license: GPL version 3, with the GNU URL',
-    strpos($readme, 'Cloudflare Turnstile is free software under the GNU General Public License, version 3 (https://www.gnu.org/licenses/gpl-3.0.html); the full text is in `LICENSE`.') !== false);
+check('it names the license: GPL version 2, with the GNU URL',
+    strpos($readme, 'Cloudflare Turnstile is free software under the GNU General Public License, version 2 (https://www.gnu.org/licenses/old-licenses/gpl-2.0.html); the full text is in `LICENSE`.') !== false);
 check('it carries the copyright sentence', strpos($readme, "Copyright \u{00A9} 2026 My Zen Cart Host (dbltoe).") !== false);
-check('LICENSE is the GNU GPL version 3 text', strpos((string)file_get_contents($ROOT . '/LICENSE'), 'Version 3, 29 June 2007') !== false);
+check('LICENSE is the GNU GPL version 2 text', strpos((string)file_get_contents($ROOT . '/LICENSE'), 'Version 2, June 1991') !== false);
 check('it says how to open it once installed', strpos($readme, "Once it's installed, a superuser can open this guide from the **ReadMe** button in Plugin Manager.") !== false);
 check('LF line endings, no tabs', strpos($readme, "\r") === false && strpos($readme, "\t") === false);
 
@@ -68,8 +68,8 @@ check('it outputs only the escaped Markdown render',
     substr_count($page, 'echo ') === 1 && strpos($page, '<?php echo $tsReadmeHtml; ?>') !== false);
 check('it has no script', stripos($page, '<script') === false);
 check('it takes nothing from the request', preg_match('~\$_(GET|POST|REQUEST|COOKIE|SERVER|FILES)~', $page) === 0);
-check('it carries the GPL v3 docblock', strpos($page, '@package  Turnstile') !== false
-    && strpos($page, '@license  https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0') !== false);
+check('it carries the GPL v2 docblock', strpos($page, '@package  Turnstile') !== false
+    && strpos($page, '@license  https://www.gnu.org/licenses/old-licenses/gpl-2.0.html GNU General Public License v2.0') !== false);
 check('it is not registered in admin_pages (reached by cmd, gated by its own superuser check)',
     strpos(file_get_contents($PLUGIN . '/Installer/ScriptedInstaller.php'), 'turnstile_readme') === false);
 
@@ -129,7 +129,7 @@ foreach (['README.md', 'CHANGELOG.md', 'docs/INSTALL.md', 'docs/CONFIGURATION.md
 }
 // LICENSE is the FSF's text, word for word ("shall" and all), so it is checked
 // for being that text rather than for our register.
-check('LICENSE exists and is the canonical gnu.org GPL v3 text', md5(str_replace("\r\n", "\n", (string)@file_get_contents($ROOT . '/LICENSE'))) === '1ebbd3e34237af26da5dc08a4e440464');
+check('LICENSE exists and is the canonical gnu.org GPL v2 text', md5(str_replace("\r\n", "\n", (string)@file_get_contents($ROOT . '/LICENSE'))) === '570a9b3749dd0463a1778803b12a6dce');
 foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($PLUGIN, FilesystemIterator::SKIP_DOTS)) as $f) {
     if (strtolower($f->getExtension()) === 'php') {
         $texts[$f->getFilename()] = file_get_contents($f->getPathname());
@@ -152,8 +152,7 @@ $changelogTxt = (string)file_get_contents($PLUGIN . '/changelog.txt');
 check('changelog.txt and CHANGELOG.md agree', strpos($texts['CHANGELOG.md'], '## ' . $version) !== false && strpos($changelogTxt, $version) !== false);
 check('both lead with this version', preg_match('~^## (v[0-9.]+)~m', $texts['CHANGELOG.md'], $c1) === 1 && $c1[1] === $version
     && preg_match('~^(v[0-9.]+) \(~m', $changelogTxt, $c2) === 1 && $c2[1] === $version);
-check('both record the license change and the new ReadMe', strpos($texts['CHANGELOG.md'], 'GNU General Public License, version 3') !== false && strpos($changelogTxt, 'GNU General Public License, version 3') !== false
-    && strpos($texts['CHANGELOG.md'], 'index.php?cmd=turnstile_readme') !== false && strpos($changelogTxt, 'index.php?cmd=turnstile_readme') !== false);
+check('both record the new ReadMe', strpos($texts['CHANGELOG.md'], 'index.php?cmd=turnstile_readme') !== false && strpos($changelogTxt, 'index.php?cmd=turnstile_readme') !== false);
 foreach (['README.md', 'docs/INSTALL.md', 'docs/CONFIGURATION.md', 'docs/COMPATIBILITY.md', 'docs/CUSTOMIZING.md'] as $doc) {
     preg_match_all('~Turnstile/(v[0-9.]+)~', $texts[$doc], $m);
     check("$doc quotes only $version as the plugin folder", $m[1] === [] || (count(array_unique($m[1])) === 1 && $m[1][0] === $version));
@@ -172,12 +171,12 @@ foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($ROOT, Fil
         $text = substr($text, 0, $cut);
     }
     // The two sentences that say what this release did are the only mentions allowed.
-    $text = preg_replace('~readme\.html\s+is\s+replaced\s+by\s+README\.md|replaces\s+readme\.html\s+with\s+this\s+guide|\(was\s+version\s+2\)~', '', $text);
-    if (preg_match('~readme\.html|GPL[ -]?(v|version )?2|gpl-2\.0|Public License,? (v|version )? ?2|zc_plugins/Turnstile/v(?!' . preg_quote(ltrim($version, 'v'), '~') . '/)[0-9]~i', $text) === 1) {
+    $text = preg_replace('~readme\.html\s+is\s+replaced\s+by\s+README\.md|replaces\s+readme\.html\s+with\s+this\s+guide~', '', $text);
+    if (preg_match('~readme\.html|GPL[ -]?(v|version )?3(?![.\d])|gpl-3\.0|Public License,? (v|version )? ?3(?![.\d])|zc_plugins/Turnstile/v(?!' . preg_quote(ltrim($version, 'v'), '~') . '/)[0-9]~i', $text) === 1) {
         $stale[] = $rel;
     }
 }
-check('nothing outside old changelog entries mentions readme.html, GPL v2 or an old version folder'. ($stale ? ': ' . implode(', ', $stale) : ''), $stale === []);
+check('nothing outside old changelog entries mentions readme.html, GPL v3 or an old version folder'. ($stale ? ': ' . implode(', ', $stale) : ''), $stale === []);
 
 section('the packaged copy');
 $distDir = $ROOT . '/dist/cloudflare_turnstile_' . $version;

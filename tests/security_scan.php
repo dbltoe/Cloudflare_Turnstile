@@ -121,9 +121,9 @@ foreach ($files as $p) {
 report('every included file carries the guard', $noGuard);
 
 section('license');
-check('the readme names the GPL license', preg_match('~GNU General Public License, version 3~', (string)file_get_contents($PLUGIN . '/README.md')) === 1);
-check('every PHP file carries the GPL v3 header', count(array_filter($files, static function ($p) {
-    return substr($p, -4) === '.php' && strpos(file_get_contents($p), 'https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0') === false;
+check('the readme names the GPL license', preg_match('~GNU General Public License, version 2~', (string)file_get_contents($PLUGIN . '/README.md')) === 1);
+check('every PHP file carries the GPL v2 header', count(array_filter($files, static function ($p) {
+    return substr($p, -4) === '.php' && strpos(file_get_contents($p), 'https://www.gnu.org/licenses/old-licenses/gpl-2.0.html GNU General Public License v2.0') === false;
 })) === 0);
 
 ts_done('security scan clean');

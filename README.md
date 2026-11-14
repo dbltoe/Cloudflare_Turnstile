@@ -1,6 +1,6 @@
 # Cloudflare Turnstile
 
-Version 1.2.2 · Zen Cart 1.5.8 through 3.0.0 · PHP 7.4 through 8.5 · GPL v3 · by My Zen Cart Host (dbltoe)
+Version 1.2.2 · Zen Cart 1.5.8 through 3.0.0 · PHP 7.4 through 8.5 · GPL v2 · by My Zen Cart Host (dbltoe)
 
 Stop bot signups and Contact Us spam with Cloudflare's free check. No picture puzzles, and nothing goes to Google.
 
@@ -114,7 +114,7 @@ Want to test without touching your live store? On a test copy, use Cloudflare's 
 
 **Upgrade:** upload the new version folder beside the old one, so both the old folder and `zc_plugins/Turnstile/v1.2.2/` are present, and click **Upgrade** in Plugin Manager. Your keys and choices are kept; new settings arrive with sensible defaults. Delete the old version folder afterward.
 
-**Version 1.2.2** moves the plugin to the GNU General Public License, version 3, and replaces readme.html with this guide: the ReadMe button in Plugin Manager now opens it inside the admin, for superusers, in its own window. Nothing changes on the storefront or in the settings.
+**Version 1.2.2** replaces readme.html with this guide: the ReadMe button in Plugin Manager now opens it inside the admin, for superusers, in its own window. Nothing changes on the storefront or in the settings.
 
 **Uninstall:** Plugin Manager > Cloudflare Turnstile > Uninstall removes the settings page and the keys. No template file was ever changed, so there's nothing else to undo. Delete the widget in Cloudflare too if you won't use it again.
 
@@ -130,10 +130,10 @@ The download also carries `docs/INSTALL.md`, `docs/CONFIGURATION.md`, `docs/COMP
 
 ## Changelog
 
-See `CHANGELOG.md`. Version 1.2.2 moves the plugin to the GNU General Public License, version 3, and replaces readme.html with this guide, opened from the ReadMe button in Plugin Manager.
+See `CHANGELOG.md`. Version 1.2.2 replaces readme.html with this guide, opened from the ReadMe button in Plugin Manager.
 
 ## License
 
-Cloudflare Turnstile is free software under the GNU General Public License, version 3 (https://www.gnu.org/licenses/gpl-3.0.html); the full text is in `LICENSE`. Copyright © 2026 My Zen Cart Host (dbltoe).
+Cloudflare Turnstile is free software under the GNU General Public License, version 2 (https://www.gnu.org/licenses/old-licenses/gpl-2.0.html); the full text is in `LICENSE`. Copyright © 2026 My Zen Cart Host (dbltoe).
 
 Cloudflare and Turnstile are trademarks of Cloudflare, Inc.; this plugin is independent and isn't made or endorsed by Cloudflare.
