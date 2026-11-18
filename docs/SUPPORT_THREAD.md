@@ -16,10 +16,6 @@ Every form that creates an account: the Create Account page, the new-customer fo
 
 Contact Us. A failed check means the message isn't sent.
 
-Ask a Question, on a product page. A failed check means the message isn't sent.
-
-Write a Review. A failed check means the review isn't stored.
-
 Each form has its own on/off switch. The check is placed just above the form's Submit or Send button, and every submission is verified on your server, so a bot that skips the page and posts straight to the form is refused too.
 
 **What it doesn't change**
@@ -47,3 +43,49 @@ Testing on a copy of your store? Cloudflare publishes test keys that always pass
 Turnstile Pro, for stores that are being attacked rather than just annoyed: protection for checkout against card testing, the login and password-reset forms, reviews and the other forms bots use, the admin login, and a report of what was blocked.
 
 Questions, reports and suggestions are welcome here.
+
+---
+
+## v1.2.0 update reply (POSTED by John, 2026-10-17)
+
+Drafted 2026-10-17 for thread 207429 and posted by John himself; the wording as it went up was not captured here. The forum closes edits a few minutes after submission, so neither this reply nor the opening post can be changed. The opening post above is the record of what was posted on 2026-10-13 and lists two forms, because that is what v1.1.0 protected; this reply adds the other two. The opening post also understates the range ("Zen Cart 2.0 through 3.0.0 on PHP 8.0 through 8.5"), which the 1.5.8 re-cut on the same day made stale, so the reply corrects it.
+
+**v1.2.0 is up**, and it adds two more forms. The plugin now covers Create Account, Contact Us, Ask a Question and Write a Review, which is the set most people ask for.
+
+Download and source: https://github.com/dbltoe/Cloudflare_Turnstile/releases/latest
+
+**What's new**
+
+Ask a Question, on a product page. A failed check means the message isn't sent.
+
+Write a Review. A failed check means the review isn't stored.
+
+Each has its own on/off switch, and both arrive switched on after an upgrade. Your keys and your existing settings are left alone.
+
+Both use the captcha notifier Zen Cart fires on those pages itself, so the check happens before core mails anything or stores a review. As before, no template file is edited, and if Cloudflare can't be reached the submission is allowed and a warning goes to your logs folder.
+
+**Upgrading**
+
+Upload the v1.2.0 folder beside your current one and click Upgrade in Plugin Manager. That's all; the settings you already saved are kept.
+
+**Tested**
+
+End to end on a 2.2.2 store: installed from Plugin Manager, the check appears on each form, and a review posted without completing the check was refused and never stored. Also checked against every release the plugin declares, 1.5.8 through 3.0.0 on PHP 7.4 through 8.5, including that each form's notifier fires before the point where Zen Cart mails or stores anything.
+
+**Two corrections to the first post in this thread**, which I can no longer edit:
+
+It says Zen Cart 2.0 through 3.0.0 on PHP 8.0 through 8.5. Since v1.1.0 it has been **1.5.8 through 3.0.0 on PHP 7.4 through 8.5**.
+
+It also lists reviews among the things coming in a paid add-on. Write a Review is in this free release instead, along with Ask a Question.
+
+---
+
+## Widget screenshot reply (POSTED 2026-10-17, post 1347683)
+
+https://www.zen-cart.com/threads/207429?page=1#post-1347683 — attachment `docs/screenshots/widget-live-success-haredo.png`, posted from John's logged-in Chrome at his instruction. Text as posted:
+
+A few people have asked what it actually looks like on the page. Here it is on a live store's Create Account form, sitting just above the Submit button.
+
+In Managed mode most visitors never tick anything: Cloudflare verifies quietly in the background and the box shows the green Success you see here. The checkbox reading "Verify you are human" only appears when Cloudflare decides it wants interaction, so a quiet pass is normal rather than a sign the check isn't working. On a narrow phone the box switches to its compact size so it doesn't push the page sideways.
+
+Forum notes: the reply editor is rich text over a hidden `#reply-body` textarea and must be opened with the Reply link (`#reply`) before typing lands; the attachment input accepts a direct file upload before the editor is open. Editing closes minutes after posting.
